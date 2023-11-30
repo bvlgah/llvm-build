@@ -153,21 +153,21 @@ class LLVMCMakeBuilder(LoggerMixin):
     if self._opts.enableProjects:
       projects = str.join(cmakeListSep,
         [ p.value for p in self._opts.enableProjects ])
-      args.append(f'-DLLVM_ENABLE_PROJECTS={projects}')
+      args.append(f'-DLLVM_ENABLE_PROJECTS="{projects}"')
     if self._opts.enableRuntimes:
       runtimes = str.join(cmakeListSep,
         [ r.value for r in self._opts.enableRuntimes ])
-      args.append(f'-DLLVM_ENABLE_RUNTIMES={runtimes}')
+      args.append(f'-DLLVM_ENABLE_RUNTIMES="{runtimes}"')
     if self._opts.buildTargets:
       targets = str.join(cmakeListSep,
         [ t.value for t in self._opts.buildTargets ])
-      args.append(f'-DLLVM_TARGETS_TO_BIULD={targets}')
+      args.append(f'-DLLVM_TARGETS_TO_BIULD="{targets}"')
     if not self._opts.useLLD is None:
       args.append(f'-DLLVM_ENABLE_LLD={_to_cmake_bool(self._opts.useLLD)}')
     if not self._opts.useCcache is None:
       args.append(f'-DLLVM_CCACHE_BUILD={_to_cmake_bool(self._opts.useCcache)}')
     if self._opts.useSanitizer:
-      args.append(f'-DLLVM_USE_SANITIZER={self._opts.useSanitizer.value}')
+      args.append(f'-DLLVM_USE_SANITIZER="{self._opts.useSanitizer.value}"')
     if not self._opts.buildExamples is None:
       args.append(
         f'-DLLVM_BUILD_EXAMPLES={_to_cmake_bool(self._opts.buildExamples)}')
