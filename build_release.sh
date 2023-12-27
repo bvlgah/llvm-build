@@ -24,5 +24,4 @@ python3 -m build \
   --cc clang \
   --cxx clang++ \
   --use-lld \
-  --use-ccache \
-  --use-sanitizer 'Address;Undefined'
+  --use-ccache

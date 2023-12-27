@@ -15,6 +15,7 @@ def _main():
   try:
     buildOptions = LLVMBuildOptions.parse(sys.argv[1:])
     llvmBuilder = LLVMCMakeBuilder(buildOptions)
+    rootLogger.info('start building')
     llvmBuilder.build()
     rootLogger.info('building finished')
   except Exception as e:
