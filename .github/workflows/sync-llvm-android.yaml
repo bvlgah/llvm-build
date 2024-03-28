@@ -1,0 +1,37 @@
+name: A job to sync llvm_android daily
+run-name: Sync llvm_android daily
+on:
+  schedule:
+    # Run at 0:00 UTC every single day
+    - cron: '0 0 * * *'
+
+env:
+  llvm_android_repo: |
+    https://android-review.googlesource.com/toolchain/llvm_android
+  mirror_repo: bvlgah/llvm_android_mirror
+  mirror_branch: main
+  local_repo_path: llvm_android_mirror
+  upstream_remote_name: upstream
+
+jobs:
+  sync:
+    name: Sync llvm_android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout llvm_android
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.mirror_repo }}
+          ref: ${{ env.mirror_branch }}
+          path: ${{ env.local_repo_path }}
+          token: ${{ secrets.SYNC_LLVM_ANDROID_TOKEN }}
+      - run: |
+          cd ${{ env.local_repo_path }}
+          git remote add upstream ${{ env.llvm_android_repo }}
+          git pull ${{ env.upstream_remote_name }} ${{ env.mirror_branch }}
+      - name: Push upstream changes
+        uses: ad-m/github-push-action@master
+        with:
+          repository: ${{ env.mirror_repo }}
+          branch: ${{ env.mirror_branch }}
+          github_token: ${{ secrets.SYNC_LLVM_ANDROID_TOKEN }}
