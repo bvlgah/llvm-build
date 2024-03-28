@@ -1,5 +1,4 @@
 from argparse import ArgumentParser
-from enum import Enum
 import gzip
 from pathlib import Path
 import shutil
