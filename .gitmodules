@@ -1,3 +1,0 @@
-[submodule "deps/llvm_android"]
-	path = deps/llvm_android
-	url = git@github.com:bvlgah/llvm_android_mirror.git
