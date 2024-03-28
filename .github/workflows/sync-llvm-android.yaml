@@ -36,4 +36,4 @@ jobs:
           repository: ${{ env.mirror_repo }}
           branch: ${{ env.mirror_branch }}
           github_token: ${{ secrets.SYNC_LLVM_ANDROID_TOKEN }}
-          directory: ${{ local_repo_path }}
+          directory: ${{ env.local_repo_path }}
