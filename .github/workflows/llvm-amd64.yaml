@@ -1,0 +1,39 @@
+name: LLVM toolchain amd64
+run-name: CI/CD for LLVM Toolchain AMD64
+on:
+  schedule:
+    # Run at 8:00 UTC every single day
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+env:
+  llvm_build_dir: llvm-build
+  llvm_source_dir: llvm-project
+
+jobs:
+  build:
+    name: Build LLVM Toolchain AMD64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout LLVM build scripts
+        uses: actions/checkout@v4
+        path: ${{ env.llvm_source_dir }}
+      - name: Checkout LLVM source code
+        run: |
+          git clone --depth 1 https://github.com/llvm/llvm-project.git ${{ env.llvm_source_dir }}
+      - name: Install build dependencies
+        run: |
+          cd ${{ env.llvm_build_dir }}
+          python -m venv env
+          . venv/bin/activate
+          pip install -r requirements.txt
+      - name: Build LLVM AMD64
+        run: |
+          cd ${{ env.llvm_build_dir }}
+          . venv/bin/active
+          ./script/build_driver.sh --config ./projects/llvm.yaml --package
+      - name: Upload LLVM AMD64 binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: LLVM AMD64 binaries
+          path: ${{ env.llvm_build_dir }}/out/clang-native.tar.xz
