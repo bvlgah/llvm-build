@@ -1,0 +1,18 @@
+name: LLVM Test Suite with SelectionDAG
+description: Run LLVM Test Suite with Native LLVM Toolchain and SelectionDAG
+srcDir: ../llvm-test-suite
+buildDir: ./out/llvm-test-suite/sdag-O3-build
+
+buildTool:
+  name: cmake
+  customConfigureOptions:
+    initialCache: ../llvm-test-suite/cmake/caches/O3.cmake
+
+toolchain:
+  name: clang
+
+compilerOption:
+  cflags:
+    - '-fno-global-isel'
+  cxxflags:
+    - '-fno-global-isel'
