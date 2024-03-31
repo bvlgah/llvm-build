@@ -31,7 +31,7 @@ jobs:
       - name: Build LLVM AMD64
         run: |
           cd ${{ env.llvm_build_dir }}
-          . venv/bin/active
+          . venv/bin/activate
           ./script/build_driver.sh --config ./projects/llvm.yaml --package
       - name: Upload LLVM AMD64 binaries
         uses: actions/upload-artifact@v4
