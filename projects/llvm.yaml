@@ -1,15 +1,16 @@
 name: LLVM
 description: LLVM Toolchain
 srcDir: ../llvm-project/llvm
-buildDir: ./out/test/llvm-build
-installDir: ./out/test/llvm-install
+buildDir: ./out/llvm/native-build
+installDir: ./out/llvm/natve-install
+packagePathPrefix: ./out/llvm/clang-native
 buildTool:
   name: cmake
   customConfigureOptions:
-    - 'CMAKE_BUILD_TYPE=Release'
-    - 'LLVM_ENABLE_PROJECTS=clang;lld'
-    - 'LLVM_TARGETS_TO_BUILD=Native;RISCV'
-    - 'LLVM_ENABLE_LLD=ON'
-    - 'LLVM_CCACHE_BUILD=ON'
+    CMAKE_BUILD_TYPE: 'Release'
+    LLVM_ENABLE_PROJECTS: 'clang;lld'
+    LLVM_TARGETS_TO_BUILD: 'Native;RISCV'
+    LLVM_ENABLE_LLD: 'ON'
+    LLVM_CCACHE_BUILD: 'ON'
 toolchain:
   name: clang

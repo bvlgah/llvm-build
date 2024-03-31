@@ -2,12 +2,11 @@ import abc
 from contextlib import contextmanager
 import datetime
 from enum import Enum
-from io import StringIO
 import os
 from pathlib import Path
 import shutil
 import subprocess
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from common.utils import FileSystemHelper, LoggerMixin, StrValueEnum
 
@@ -58,7 +57,7 @@ class TimedBuilder(AbstractBuilder):
 
 class AbstractCMakeDefineProvider(abc.ABC):
   @abc.abstractmethod
-  def getDefines(self) -> List[str]:
+  def getDefines(self) -> Dict[str, str]:
     ...
 
 class CMakeGenerator(StrValueEnum):
@@ -68,7 +67,7 @@ class CMakeGenerator(StrValueEnum):
   Ninja = 'Ninja'
 
 class CMakeBuilder(AbstractBuilder):
-  _defineProviders: List[AbstractCMakeDefineProvider]
+  _defineProvider: Optional[AbstractCMakeDefineProvider]
   _generator: CMakeGenerator
   _targets: List[str]
   _srcDir: Path
@@ -81,7 +80,7 @@ class CMakeBuilder(AbstractBuilder):
 
   def __init__(self, srcDir: Path, buildDir: Path) -> None:
     super().__init__()
-    self._defineProviders = []
+    self._defineProvider = None
     self._generator = CMakeGenerator.Ninja
     self._targets = []
     self._srcDir = srcDir
@@ -112,8 +111,8 @@ class CMakeBuilder(AbstractBuilder):
   def setInitialCache(self, cache: Path) -> None:
     self._initialCache = cache
 
-  def addDefineProvider(self, defineProvider: AbstractCMakeDefineProvider) -> None:
-    self._defineProviders.append(defineProvider)
+  def setDefineProvider(self, defineProvider: AbstractCMakeDefineProvider) -> None:
+    self._defineProvider = defineProvider
 
   def _findCMake(self) -> Optional[Path]:
     '''Return resolved cmake path or None if no cmake is found'''
@@ -132,31 +131,6 @@ class CMakeBuilder(AbstractBuilder):
       raise RuntimeError('cannot find cmake')
     return cmakePath
 
-  @classmethod
-  def _addQuoteIfNecessary(cls, option: str) -> str:
-    '''This function is not necessarily needed, but it improves readability of
-       command line options'''
-    if ' ' not in option:
-      return option
-    return f"'{option}'"
-
-  @classmethod
-  def _convertCommandToStr(cls, *args: str, indentLevel=4) -> str:
-    if len(args) == 0:
-      return ''
-    if len(args) == 1:
-      return cls._addQuoteIfNecessary(args[0])
-
-    strStream = StringIO()
-    strStream.write(args[0])
-    indent = ' ' * indentLevel
-    for arg in args[1:]:
-      strStream.write(' \\')
-      strStream.write(os.linesep)
-      strStream.write(indent)
-      strStream.write(cls._addQuoteIfNecessary(arg))
-    return strStream.getvalue()
-
   def _doConfig(self) -> None:
     cmakePath = self._findCMakeOrRaise()
     FileSystemHelper.check_dir(self._srcDir)
@@ -174,11 +148,12 @@ class CMakeBuilder(AbstractBuilder):
       args.append('-C')
       args.append(str(self._initialCache))
 
-    for provider in self._defineProviders:
-      args.extend([f'-D{define}' for define in provider.getDefines()])
+    if self._defineProvider is not None:
+      for (key, value) in self._defineProvider.getDefines().items():
+        args.append(f'-D{key}={value}')
 
     self.logger.info('Configuration command is: %s%s',
-        os.linesep, self._convertCommandToStr(*args))
+        os.linesep, FileSystemHelper.convertCommandToStr(*args))
 
     subprocess.check_call(args)
 

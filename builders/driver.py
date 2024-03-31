@@ -3,9 +3,10 @@ import logging
 import os
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 from pydantic import BaseModel, ConfigDict
-from typing import Any, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 import yaml
 
 from common.adaptors import CompilerOptionDefineProvider, ToolchainDefineProvider
@@ -13,7 +14,7 @@ from common.utils import FileSystemHelper
 
 from common.base_builders import AbstractBuilder, BuilderKind, CMakeBuilder, TimedBuilder
 from common.compiler import AbstractCompilerOption, AbstractToolchain, CompilerOption
-from common.define_providers import CustomCMakeDefineProvider
+from common.define_providers import CMakeDefineProviderAggregate, CustomCMakeDefineProvider
 from toolchain import ToolchainKind
 from toolchain.gcc import GCCToolchain
 from toolchain.llvm import LLVMToolchain
@@ -36,9 +37,9 @@ class _BuildToolConfig(BaseModel):
   model_config = ConfigDict(frozen=True)
 
   name: BuilderKind
-  customConfigureOptions: List[str] = []
-  customBuildOptions: List[str] = []
-  customInstallOptions: List[str] = []
+  customConfigureOptions: Dict[str, str] = dict()
+  customBuildOptions: Dict[str, str] = dict()
+  customInstallOptions: Dict[str, str] = dict()
 
 class _ProjectConfig(BaseModel):
   model_config = ConfigDict(frozen=True)
@@ -48,6 +49,7 @@ class _ProjectConfig(BaseModel):
   srcDir: Path
   buildDir: Path
   installDir: Optional[Path] = None
+  packagePathPrefix: Optional[Path] = None
   compilerOption: Optional[_CompilerOptionConfig] = None
   buildTool: _BuildToolConfig
   toolchain: _ToolchainConfig
@@ -69,18 +71,21 @@ def _assembleCMakeBuilder(projectConfig: _ProjectConfig,
     toolchain: AbstractToolchain,
     compilerOption: Optional[AbstractCompilerOption]) -> CMakeBuilder:
   builder = CMakeBuilder(projectConfig.srcDir, projectConfig.buildDir)
-  builder.addDefineProvider(ToolchainDefineProvider(toolchain))
+  defineAggregate = CMakeDefineProviderAggregate()
+  defineAggregate.addProvider(ToolchainDefineProvider(toolchain))
+
   if compilerOption is not None:
-    builder.addDefineProvider(CompilerOptionDefineProvider(compilerOption))
+    defineAggregate.addProvider(CompilerOptionDefineProvider(compilerOption))
 
   if projectConfig.installDir is not None:
     builder.setInstallDir(projectConfig.installDir)
 
   if projectConfig.buildTool.customConfigureOptions:
     customDefineProvider = CustomCMakeDefineProvider()
-    for define in projectConfig.buildTool.customConfigureOptions:
-      customDefineProvider.addDefine(define)
-    builder.addDefineProvider(customDefineProvider)
+    for (key, value) in projectConfig.buildTool.customConfigureOptions.items():
+      customDefineProvider.addDefine(key, value)
+    defineAggregate.addProvider(customDefineProvider)
+  builder.setDefineProvider(defineAggregate)
   return builder
 
 def _findCompilerInstallDir(compiler: str) -> Path:
@@ -132,6 +137,9 @@ def _parseArgs(args: Sequence[str]) -> Namespace:
            '(log file will still be created if enabled)')
   parser.add_argument('--config', required=True, type=Path,
       help='File used to specify building configuration for a project')
+  parser.add_argument('--package', required=False, action='store_true',
+      default=False,
+      help='File used to specify building configuration for a project')
   return parser.parse_args(args)
 
 def _resolvePath(path: Path) -> Path:
@@ -154,6 +162,30 @@ def _config_logging():
       '%(module)s.%(name)s.%(funcName)s] %(message)s'
   logging.basicConfig(format=loggingFormat, level=logging.DEBUG)
 
+def _package(projectConfig: _ProjectConfig) -> None:
+  logger = logging.getLogger(__file__)
+  logger.info('Start packaging')
+  if projectConfig.packagePathPrefix is None:
+    raise RuntimeError('Unable to package: no package path is specified')
+  buildDir = _resolvePath(projectConfig.buildDir)
+  packagePathPrefix = _resolvePath(projectConfig.packagePathPrefix)
+  FileSystemHelper.check_dir(buildDir)
+  FileSystemHelper.create_dir(packagePathPrefix / '..')
+  FileSystemHelper.check_bin_from_env('xz')
+  FileSystemHelper.check_bin_from_env('tar')
+  filesToPack = os.listdir(buildDir)
+  packagePath = f'{packagePathPrefix}.tar.xz'
+  args = [
+    'tar', '-c', '-l', "'xz -9 -T0'",
+    '-f', f'{packagePath}',
+    '-C', f'{buildDir}'
+  ]
+  args.extend(filesToPack)
+  logging.getLogger(__file__).info(
+      "The command to package 'f{packagePath}' is %s%s", os.linesep,
+      FileSystemHelper.convertCommandToStr(*args))
+  subprocess.check_call(args)
+
 def _main() -> None:
   _config_logging()
   parsedCmdArgs = _parseArgs(sys.argv[1:])
@@ -166,6 +198,8 @@ def _main() -> None:
   builder.configure()
   builder.build()
   builder.install()
+  if parsedCmdArgs.package:
+    _package(projectConfig)
 
 if __name__ == '__main__':
   _main()

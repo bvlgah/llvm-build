@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict
 
 from common.base_builders import AbstractCMakeDefineProvider
 from common.compiler import AbstractCompilerOption, AbstractToolchain
@@ -11,17 +11,17 @@ class CompilerOptionDefineProvider(AbstractCMakeDefineProvider):
     super().__init__()
     self._option = option
 
-  def getDefines(self) -> List[str]:
+  def getDefines(self) -> Dict[str, str]:
     cflags: str = ' '.join(self._option.getCFlags())
     cxxflags: str = ' '.join(self._option.getCXXFlags())
     ldflags:str  = ' '.join(self._option.getLDFlags())
-    defines = [
-      f'CMAKE_C_FLAGS={cflags}',
-      f'CMAKE_CXX_FLAGS={cxxflags}',
-      f'CMAKE_EXE_LINKER_FLAGS={ldflags}',
-      f'CMAKE_MODULE_LINKER_FLAGS={ldflags}',
-      f'CMAKE_SHARED_LINKER_FLAGS={ldflags}',
-    ]
+    defines: Dict[str, str] = {
+      'CMAKE_C_FLAGS': cflags,
+      'CMAKE_CXX_FLAGS': cxxflags,
+      'CMAKE_EXE_LINKER_FLAGS': ldflags,
+      'CMAKE_MODULE_LINKER_FLAGS': ldflags,
+      'CMAKE_SHARED_LINKER_FLAGS': ldflags,
+    }
     return defines
 
 class ToolchainDefineProvider(AbstractCMakeDefineProvider):
@@ -32,11 +32,11 @@ class ToolchainDefineProvider(AbstractCMakeDefineProvider):
     super().__init__()
     self._toolchain = toolchain
 
-  def getDefines(self) -> List[str]:
+  def getDefines(self) -> Dict[str, str]:
     FileSystemHelper.check_file(self._toolchain.cc())
     FileSystemHelper.check_file(self._toolchain.cxx())
-    defines = [
-      f'CMAKE_C_COMPILER={self._toolchain.cc()}',
-      f'CMAKE_CXX_COMPILER={self._toolchain.cxx()}',
-    ]
+    defines: Dict[str, str] = {
+      'CMAKE_C_COMPILER': str(self._toolchain.cc()),
+      'CMAKE_CXX_COMPILER': str(self._toolchain.cxx()),
+    }
     return defines

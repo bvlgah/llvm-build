@@ -1,6 +1,9 @@
 from enum import Enum
+from io import StringIO
 import logging
+import os
 from pathlib import Path
+import shutil
 from typing import Sequence
 
 class LoggerMixin:
@@ -44,3 +47,34 @@ class FileSystemHelper(LoggerMixin):
         raise RuntimeError(
             f"failed creating directory '{dirPath}': an existent regular file")
     dirPath.mkdir(parents=True)
+
+  @classmethod
+  def check_bin_from_env(cls, binName: str) -> None:
+    if shutil.which(binName) is None:
+      raise RuntimeError(f'executable file not found: {binName}')
+
+  @classmethod
+  def _addQuoteIfNecessary(cls, option: str) -> str:
+    '''This function is not necessarily needed, but it improves readability of
+       command line options'''
+    if ' ' not in option:
+      return option
+    return f"'{option}'"
+
+
+  @classmethod
+  def convertCommandToStr(cls, *args: str, indentLevel=4) -> str:
+    if len(args) == 0:
+      return ''
+    if len(args) == 1:
+      return cls._addQuoteIfNecessary(args[0])
+
+    strStream = StringIO()
+    strStream.write(args[0])
+    indent = ' ' * indentLevel
+    for arg in args[1:]:
+      strStream.write(' \\')
+      strStream.write(os.linesep)
+      strStream.write(indent)
+      strStream.write(cls._addQuoteIfNecessary(arg))
+    return strStream.getvalue()

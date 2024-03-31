@@ -1,18 +1,19 @@
 name: LLVM RISC-V 64
 description: LLVM Toolchain Targeted Linux RISC-V 64
 srcDir: ../llvm-project/llvm
-buildDir: ./out/test/llvm-riscv64-build
-installDir: ./out/test/llvm-riscv64-install
+buildDir: ./out/llvm/riscv64-build
+installDir: ./out/llvm/riscv64-install
+packagePathPrefix: ./out/llvm/clang-riscv64
 buildTool:
   name: cmake
   customConfigureOptions:
-    - 'CMAKE_BUILD_TYPE=Release'
-    - 'LLVM_ENABLE_PROJECTS=clang;lld'
-    - 'LLVM_TARGETS_TO_BUILD=RISCV'
-    - 'LLVM_CCACHE_BUILD=ON'
-    - 'CMAKE_CROSSCOMPILING=True'
-    - 'CMAKE_SYSTEM_NAME=Linux'
-    - 'LLVM_HOST_TRIPLE=riscv64-unknown-linux-gnu'
+    CMAKE_BUILD_TYPE: 'Release'
+    LLVM_ENABLE_PROJECTS: 'clang;lld'
+    LLVM_TARGETS_TO_BUILD: 'RISCV'
+    LLVM_CCACHE_BUILD: 'ON'
+    CMAKE_CROSSCOMPILING: 'True'
+    CMAKE_SYSTEM_NAME: 'Linux'
+    LLVM_HOST_TRIPLE: 'riscv64-unknown-linux-gnu'
 toolchain:
   name: gcc
   targetPrefix: riscv64-linux-gnu
