@@ -11,7 +11,7 @@ import yaml
 from common.adaptors import CompilerOptionDefineProvider, ToolchainDefineProvider
 from common.utils import FileSystemHelper
 
-from common.base_builders import AbstractBuilder, AbstractCMakeDefineProvider, BuilderKind, CMakeBuilder, TimedBuilder
+from common.base_builders import AbstractBuilder, BuilderKind, CMakeBuilder, TimedBuilder
 from common.compiler import AbstractCompilerOption, AbstractToolchain, CompilerOption
 from common.define_providers import CustomCMakeDefineProvider
 from toolchain import ToolchainKind
@@ -95,8 +95,10 @@ def _findCompilerInstallDir(compiler: str) -> Path:
 def _assembleToolchain(projectConfig: _ProjectConfig) -> AbstractToolchain:
   if projectConfig.toolchain.name == ToolchainKind.gcc:
     if projectConfig.toolchain.installDir is None:
+      gccName = projectConfig.toolchain.targetPrefix + '-gcc' \
+          if projectConfig.toolchain.targetPrefix else 'gcc'
       return GCCToolchain(projectConfig.toolchain.targetPrefix,
-          _findCompilerInstallDir('gcc'))
+          _findCompilerInstallDir(gccName))
     else:
       return GCCToolchain(projectConfig.toolchain.targetPrefix,
           projectConfig.toolchain.installDir)
