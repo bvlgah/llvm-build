@@ -1,5 +1,5 @@
-name: LLVM toolchain amd64
-run-name: CI/CD for LLVM Toolchain AMD64
+name: LLVM Toolchain RISCV64
+run-name: CI/CD for LLVM Toolchain RISCV64
 on:
   schedule:
     # Run at 8:00 UTC every single day
@@ -12,7 +12,7 @@ env:
 
 jobs:
   build:
-    name: Build LLVM Toolchain AMD64
+    name: Build LLVM Toolchain RISCV64
     runs-on: ubuntu-latest
     steps:
       - name: Checkout LLVM build scripts
@@ -29,13 +29,13 @@ jobs:
           python -m venv venv
           . venv/bin/activate
           pip install -r requirements.txt
-      - name: Build LLVM AMD64
+      - name: Build LLVM RISCV64
         run: |
           cd ${{ env.llvm_build_dir }}
           . venv/bin/activate
           ./script/build_driver.sh --config ./projects/llvm.yaml --package
-      - name: Upload LLVM AMD64 binaries
+      - name: Upload LLVM RISCV64 binaries
         uses: actions/upload-artifact@v4
         with:
-          name: LLVM AMD64 binaries
-          path: ${{ env.llvm_build_dir }}/out/llvm/clang-native.tar.xz
+          name: LLVM RISCV64 binaries
+          path: ${{ env.llvm_build_dir }}/out/llvm/clang-riscv64.tar.xz
