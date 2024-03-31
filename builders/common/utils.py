@@ -38,6 +38,7 @@ class FileSystemHelper(LoggerMixin):
 
   @classmethod
   def create_dir(cls, dirPath: Path) -> None:
+    dirPath = dirPath.resolve()
     if dirPath.exists():
       if dirPath.is_dir():
         cls.classLogger().warning(

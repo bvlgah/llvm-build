@@ -180,16 +180,18 @@ def _package(projectConfig: _ProjectConfig) -> None:
   logger.info('Start packaging')
   if projectConfig.packagePathPrefix is None:
     raise RuntimeError('Unable to package: no package path is specified')
-  FileSystemHelper.check_dir(projectConfig.buildDir)
+  if projectConfig.installDir is None:
+    raise RuntimeError('Unable to package: install directory not specified')
+  FileSystemHelper.check_dir(projectConfig.installDir)
   FileSystemHelper.create_dir(projectConfig.packagePathPrefix / '..')
   FileSystemHelper.check_bin_from_env('xz')
   FileSystemHelper.check_bin_from_env('tar')
-  filesToPack = os.listdir(projectConfig.buildDir)
+  filesToPack = os.listdir(projectConfig.installDir)
   packagePath = f'{projectConfig.packagePathPrefix}.tar.xz'
   args = [
-    'tar', '-c', '-l', "'xz -9 -T0'",
+    'tar', '-c', '-l', 'xz -9 -T0',
     '-f', f'{packagePath}',
-    '-C', f'{projectConfig.buildDir}'
+    '-C', f'{projectConfig.installDir}'
   ]
   args.extend(filesToPack)
   logging.getLogger(__file__).info(

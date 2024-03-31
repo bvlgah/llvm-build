@@ -3,7 +3,7 @@ description: LLVM Toolchain Targeted Linux RISC-V 64
 srcDir: ../llvm-project/llvm
 buildDir: ./out/llvm/riscv64-build
 installDir: ./out/llvm/riscv64-install
-packagePathPrefix: ./out/llvm/clang-riscv64
+packagePathPrefix: ./out/llvm/riscv64-package/clang-riscv64
 buildTool:
   name: cmake
   customConfigureOptions:
