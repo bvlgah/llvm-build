@@ -5,8 +5,8 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
-from pydantic import BaseModel, ConfigDict
-from typing import Any, Dict, List, Optional, Sequence
+from pydantic import AfterValidator, BaseModel, ConfigDict
+from typing import Annotated, Dict, List, Optional, Sequence
 import yaml
 
 from common.adaptors import CompilerOptionDefineProvider, ToolchainDefineProvider
@@ -19,6 +19,18 @@ from toolchain import ToolchainKind
 from toolchain.gcc import GCCToolchain
 from toolchain.llvm import LLVMToolchain
 
+def _doResolvePath(path: Path) -> Path:
+  if path.is_absolute():
+    return path.resolve()
+  else:
+    rootDir = Path(os.path.dirname(__file__)) / '..'
+    return (rootDir / path).resolve()
+
+def _resolvePath(path: Optional[Path]) -> Optional[Path]:
+  if path is None:
+    return None
+  return _doResolvePath(path)
+
 class _CompilerOptionConfig(BaseModel):
   model_config = ConfigDict(frozen=True)
 
@@ -26,11 +38,16 @@ class _CompilerOptionConfig(BaseModel):
   cxxflags: List[str] = []
   ldflags: List[str] = []
 
+_NullableProjectRootBasedPath = Annotated[Optional[Path],
+    AfterValidator(_resolvePath)]
+_NonNullableProjectRootBasedPath = Annotated[Path,
+    AfterValidator(_doResolvePath)]
+
 class _ToolchainConfig(BaseModel):
   model_config = ConfigDict(frozen=True)
 
   name: ToolchainKind
-  installDir: Optional[Path] = None
+  installDir: _NullableProjectRootBasedPath = None
   targetPrefix: str = ''
 
 class _BuildToolConfig(BaseModel):
@@ -46,10 +63,10 @@ class _ProjectConfig(BaseModel):
 
   name: str
   description: str = ''
-  srcDir: Path
-  buildDir: Path
-  installDir: Optional[Path] = None
-  packagePathPrefix: Optional[Path] = None
+  srcDir: _NonNullableProjectRootBasedPath
+  buildDir: _NonNullableProjectRootBasedPath
+  installDir: _NullableProjectRootBasedPath = None
+  packagePathPrefix: _NullableProjectRootBasedPath = None
   compilerOption: Optional[_CompilerOptionConfig] = None
   buildTool: _BuildToolConfig
   toolchain: _ToolchainConfig
@@ -67,10 +84,19 @@ def _assembleCompilerOption(projectConfig: _ProjectConfig) -> \
     option.addLDFalg(ldflag)
   return option
 
+def _preloadCMakeOptions(builder: CMakeBuilder, config: _BuildToolConfig):
+  if 'initialCache' in config.customConfigureOptions:
+    cachePath = _doResolvePath(
+        Path(config.customConfigureOptions['initialCache']))
+    FileSystemHelper.check_file(cachePath)
+    builder.setInitialCache(cachePath)
+    config.customConfigureOptions.pop('initialCache')
+
 def _assembleCMakeBuilder(projectConfig: _ProjectConfig,
     toolchain: AbstractToolchain,
     compilerOption: Optional[AbstractCompilerOption]) -> CMakeBuilder:
   builder = CMakeBuilder(projectConfig.srcDir, projectConfig.buildDir)
+  _preloadCMakeOptions(builder, projectConfig.buildTool)
   defineAggregate = CMakeDefineProviderAggregate()
   defineAggregate.addProvider(ToolchainDefineProvider(toolchain))
 
@@ -140,22 +166,9 @@ def _parseArgs(args: Sequence[str]) -> Namespace:
   parser.add_argument('--package', required=False, action='store_true',
       default=False,
       help='File used to specify building configuration for a project')
+  parser.add_argument('--no-install', required=False, action='store_true',
+      default=False, help='Do not install executables, libraries and headers')
   return parser.parse_args(args)
-
-def _resolvePath(path: Path) -> Path:
-  if path.is_absolute():
-    return path.resolve()
-  else:
-    rootDir = Path(os.path.dirname(__file__))
-    return (rootDir / path).resolve()
-
-def _modifyConfig(projectConfig: Any, args: Namespace) -> None:
-  if args.src_dir:
-    projectConfig['srcDir'] = _resolvePath(args.src_dir)
-  if args.build_dir:
-    projectConfig['buildDir'] = _resolvePath(args.build_dir)
-  if args.install_dir:
-    projectConfig['installDir'] = _resolvePath(args.install_dir)
 
 def _config_logging():
   loggingFormat = '[%(asctime)s %(levelname)s ' \
@@ -167,18 +180,16 @@ def _package(projectConfig: _ProjectConfig) -> None:
   logger.info('Start packaging')
   if projectConfig.packagePathPrefix is None:
     raise RuntimeError('Unable to package: no package path is specified')
-  buildDir = _resolvePath(projectConfig.buildDir)
-  packagePathPrefix = _resolvePath(projectConfig.packagePathPrefix)
-  FileSystemHelper.check_dir(buildDir)
-  FileSystemHelper.create_dir(packagePathPrefix / '..')
+  FileSystemHelper.check_dir(projectConfig.buildDir)
+  FileSystemHelper.create_dir(projectConfig.packagePathPrefix / '..')
   FileSystemHelper.check_bin_from_env('xz')
   FileSystemHelper.check_bin_from_env('tar')
-  filesToPack = os.listdir(buildDir)
-  packagePath = f'{packagePathPrefix}.tar.xz'
+  filesToPack = os.listdir(projectConfig.buildDir)
+  packagePath = f'{projectConfig.packagePathPrefix}.tar.xz'
   args = [
     'tar', '-c', '-l', "'xz -9 -T0'",
     '-f', f'{packagePath}',
-    '-C', f'{buildDir}'
+    '-C', f'{projectConfig.buildDir}'
   ]
   args.extend(filesToPack)
   logging.getLogger(__file__).info(
@@ -192,12 +203,12 @@ def _main() -> None:
   FileSystemHelper.check_file(parsedCmdArgs.config)
   with open(parsedCmdArgs.config) as configFile:
     config = yaml.safe_load(configFile)
-  _modifyConfig(config, parsedCmdArgs)
   projectConfig = _ProjectConfig(**config)
   builder = TimedBuilder(_assembleBuilder(projectConfig))
   builder.configure()
   builder.build()
-  builder.install()
+  if not parsedCmdArgs.no_install:
+    builder.install()
   if parsedCmdArgs.package:
     _package(projectConfig)
 
