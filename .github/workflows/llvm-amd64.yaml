@@ -25,6 +25,7 @@ jobs:
       - name: Install build dependencies
         run: |
           cd ${{ env.llvm_build_dir }}
+          ./script/install_deps_ubuntu.sh
           python -m venv venv
           . venv/bin/activate
           pip install -r requirements.txt
