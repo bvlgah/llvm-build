@@ -189,13 +189,12 @@ def _package(projectConfig: _ProjectConfig) -> None:
   filesToPack = os.listdir(projectConfig.installDir)
   packagePath = f'{projectConfig.packagePathPrefix}.tar.xz'
   args = [
-    'tar', '-c', '-l', 'xz -9 -T0',
-    '-f', f'{packagePath}',
-    '-C', f'{projectConfig.installDir}'
+    'tar', '-C', f'{projectConfig.installDir}',
+    '-c', '-I', 'xz -9 -T0', '-f', f'{packagePath}',
   ]
   args.extend(filesToPack)
   logging.getLogger(__file__).info(
-      "The command to package 'f{packagePath}' is %s%s", os.linesep,
+      f"The command to package '{packagePath}' is %s%s", os.linesep,
       FileSystemHelper.convertCommandToStr(*args))
   subprocess.check_call(args)
 
