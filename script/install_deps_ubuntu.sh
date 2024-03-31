@@ -1,5 +1,6 @@
 set -ex
-build_deps=('clang' 'lld' 'ninja-build' 'cmake' 'ccache')
+build_deps=('clang' 'lld' 'ninja-build' 'cmake' 'ccache'
+            'gcc-riscv64-linux-gnu' 'gcc++-riscv64-linux-gnu')
 user_id=$(id -u)
 
 if [[ ${user_id} == '0' ]]; then
