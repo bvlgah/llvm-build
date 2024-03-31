@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from builders import LLVMBuildOptions, LLVMCMakeBuilder
+from builders.builders import LLVMBuildOptions, LLVMCMakeBuilder
 
 _loggingFormat = '[%(asctime)s %(levelname)s ' \
   '%(module)s.%(name)s.%(funcName)s] %(message)s'

@@ -6,9 +6,9 @@ import subprocess
 import sys
 from typing import List, Mapping, Optional, Sequence
 
-from cmake import CMakeBuildType
-from llvm import LLVMProject, LLVMRuntime, LLVMSanitizer, LLVMTarget
-from utils import StrValueEnum, LoggerMixin
+from common.cmake import CMakeBuildType
+from common.llvm import LLVMProject, LLVMRuntime, LLVMSanitizer, LLVMTarget
+from common.utils import StrValueEnum, LoggerMixin
 
 class BuildType(StrValueEnum):
   DEBUG = 'debug'

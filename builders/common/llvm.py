@@ -1,4 +1,4 @@
-from utils import StrValueEnum
+from common.utils import StrValueEnum
 
 class LLVMProject(StrValueEnum):
   CLANG = 'clang'
