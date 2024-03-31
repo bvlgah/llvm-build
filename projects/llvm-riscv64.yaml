@@ -9,7 +9,6 @@ buildTool:
     - 'CMAKE_BUILD_TYPE=Release'
     - 'LLVM_ENABLE_PROJECTS=clang;lld'
     - 'LLVM_TARGETS_TO_BUILD=RISCV'
-    - 'LLVM_ENABLE_LLD=ON'
     - 'LLVM_CCACHE_BUILD=ON'
     - 'CMAKE_CROSSCOMPILING=True'
     - 'DCMAKE_SYSTEM_NAME=Linux'
