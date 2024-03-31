@@ -6,7 +6,7 @@ import shutil
 import subprocess
 import sys
 from pydantic import AfterValidator, BaseModel, ConfigDict
-from typing import Annotated, Dict, List, Optional, Sequence
+from typing import Annotated, Any, Dict, List, Optional, Sequence
 import yaml
 
 from common.adaptors import CompilerOptionDefineProvider, ToolchainDefineProvider
@@ -168,6 +168,8 @@ def _parseArgs(args: Sequence[str]) -> Namespace:
       help='File used to specify building configuration for a project')
   parser.add_argument('--no-install', required=False, action='store_true',
       default=False, help='Do not install executables, libraries and headers')
+  parser.add_argument('--toolchain-install-dir', required=False, type=Path,
+      default=None, help='Directory where the toolchain is located')
   return parser.parse_args(args)
 
 def _config_logging():
@@ -198,12 +200,24 @@ def _package(projectConfig: _ProjectConfig) -> None:
       FileSystemHelper.convertCommandToStr(*args))
   subprocess.check_call(args)
 
+def _modifyProjectConfig(config: Dict[str, Any],
+                         args: Namespace) -> None:
+  if args.src_dir is not None:
+    config['srcDir'] = args.src_dir
+  if args.build_dir is not None:
+    config['buildDir'] = args.build_dir
+  if args.install_dir is not None:
+    config['installDir'] = args.install_dir
+  if args.toolchain_install_dir is not None:
+    config['toolchain']['installDir'] = args.toolchain_install_dir
+
 def _main() -> None:
   _config_logging()
   parsedCmdArgs = _parseArgs(sys.argv[1:])
   FileSystemHelper.check_file(parsedCmdArgs.config)
   with open(parsedCmdArgs.config) as configFile:
     config = yaml.safe_load(configFile)
+  _modifyProjectConfig(config, parsedCmdArgs)
   projectConfig = _ProjectConfig(**config)
   builder = TimedBuilder(_assembleBuilder(projectConfig))
   builder.configure()
