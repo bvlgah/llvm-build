@@ -1,9 +1,9 @@
 name: LLVM
 description: LLVM Toolchain
 srcDir: ../llvm-project/llvm
-buildDir: ./out/llvm/native-build
-installDir: ./out/llvm/natve-install
-packagePathPrefix: ./out/llvm/clang-native
+buildDir: ./out/llvm/amd64-build
+installDir: ./out/llvm/amd64-install
+packagePathPrefix: ./out/llvm/amd64-package/clang-amd64
 buildTool:
   name: cmake
   customConfigureOptions:
