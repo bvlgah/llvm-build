@@ -17,7 +17,8 @@ jobs:
     steps:
       - name: Checkout LLVM build scripts
         uses: actions/checkout@v4
-        path: ${{ env.llvm_source_dir }}
+        with:
+          path: ${{ env.llvm_source_dir }}
       - name: Checkout LLVM source code
         run: |
           git clone --depth 1 https://github.com/llvm/llvm-project.git ${{ env.llvm_source_dir }}
