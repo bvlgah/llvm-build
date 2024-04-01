@@ -38,4 +38,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: LLVM AMD64 binaries
-          path: ${{ env.llvm_build_dir }}/out/llvm/clang-native.tar.xz
+          path: ${{ env.llvm_build_dir }}/out/llvm/amd64-package/clang-amd64.tar.xz

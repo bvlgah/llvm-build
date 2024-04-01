@@ -38,4 +38,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: LLVM RISCV64 binaries
-          path: ${{ env.llvm_build_dir }}/out/llvm/clang-riscv64.tar.xz
+          path: ${{ env.llvm_build_dir }}/out/llvm/riscv64-package/clang-riscv64.tar.xz
