@@ -12,5 +12,9 @@ buildTool:
     LLVM_TARGETS_TO_BUILD: 'Native;RISCV'
     LLVM_ENABLE_LLD: 'ON'
     LLVM_CCACHE_BUILD: 'ON'
+    BUILD_SHARED_LIBS: 'ON'
+    LLVM_BUILD_EXAMPLES: 'OFF'
+    LLVM_BUILD_BENCHMARKS: 'OFF'
+    LLVM_BUILD_TESTS: 'OFF'
 toolchain:
   name: clang
