@@ -11,7 +11,7 @@ env:
   llvm_source_dir: llvm-project
   llvm_test_suite_dir: llvm-project
   prebuilt_dir: prebuilt
-  llvm_prebuilt_file: prebuilt/clang-riscv64.tar.xz
+  llvm_prebuilt_file: prebuilt/clang-riscv64.tar.gz
   llvm_prebuilt_dir: prebuilt/clang-riscv64
   llvm_test_suite_out_dir: out/llvm-test-suite
   llvm_test_suite_result_dir: out/llvm-test-suite/result
