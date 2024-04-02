@@ -22,3 +22,10 @@ buildTool:
     LLVM_BUILD_TESTS: 'OFF'
 toolchain:
   name: clang
+compilerOption:
+  cflags:
+    - '--sysroot=/'
+  cxxflags:
+    - '--sysroot=/'
+  ldflags:
+    - '--sysroot=/'
