@@ -9,11 +9,11 @@ on:
 env:
   llvm_build_dir: llvm-build
   llvm_source_dir: llvm-project
-  llvm_test_suite_dir: llvm-project
+  llvm_test_suite_dir: llvm-test-suite
   prebuilt_dir: prebuilt
-  llvm_prebuilt_file: prebuilt/clang-riscv64.tar.gz
   llvm_prebuilt_dir: prebuilt/clang-riscv64
-  llvm_test_suite_out_dir: out/llvm-test-suite
+  llvm_prebuilt_file: prebuilt/clang-riscv64.tar.xz
+  llvm_test_suite_build_dir: out/llvm-test-suite
   llvm_test_suite_result_dir: out/llvm-test-suite/result
   llvm_cross_riscv64_preubilt_url: https://github.com/riscv-collab/riscv-gnu-toolchain/releases/download/2024.03.01/riscv64-glibc-ubuntu-22.04-llvm-nightly-2024.03.01-nightly.tar.gz
 
@@ -56,6 +56,7 @@ jobs:
         with:
           name: clang_linux_riscv64
           path: ${{ env.llvm_build_dir }}/out/llvm/riscv64-package/clang-riscv64.tar.xz
+          compression-level: 0
 
   llvm-test-suite-sdag:
     name: Build and Run LLVM Test Suites with SelectionDAG
@@ -66,22 +67,23 @@ jobs:
     steps:
       - name: Install libatomic
         run: apt update && apt install -y libatomic1
-      - name: Create Prebuilt Directory
-        run: |
-          mkdir -p ${{ env.prebuilt_dir }}
-          mkdir -p ${{ env.llvm_prebuilt_dir }}
-      - name: Download Prebuilt LLVM
-        uses: actions/download-artifact@v4
-        with:
-          name: clang_linux_riscv64
-          path: ${{ env.llvm_prebuilt_file }}
-      - name: Decompress Prebuilt LLVM
-        run: |
-          tar -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
       - name: Checkout LLVM build scripts
         uses: actions/checkout@v4
         with:
           path: ${{ env.llvm_build_dir }}
+      - name: Create Prebuilt Directory
+        run: |
+          mkdir -p ${{ env.llvm_build_dir }}/${{ env.prebuilt_dir }}
+      - name: Download LLVM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: clang_linux_riscv64
+          path: ${{ env.llvm_build_dir }}/${{ env.prebuilt_dir }}
+      - name: Decompress Prebuilt LLVM
+        run: |
+          cd ${{ env.llvm_build_dir }}
+          mkdir -p ${{ env.llvm_prebuilt_dir }}
+          tar -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
       - name: Checkout LLVM Test Suites
         run: |
           git clone --depth 1 https://github.com/llvm/llvm-test-suite.git ${{ env.llvm_test_suite_dir }}
@@ -100,14 +102,13 @@ jobs:
           ./script/build_driver.sh --config ./projects/llvm-test-suite-O3-sdag.yaml --toolchain-install-dir ${{ env.llvm_prebuilt_dir }} --no-install
           pip install lit==18.1.2
           mkdir -p ${{ env.llvm_test_suite_result_dir }}
-          lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_sdag.json ${{ env.llvm_test_suite_out_dir }}/sdag-O3-build
-          cd ${{ env.llvm_test_suite_result_dir }}
-          tar -cf results_sdag.tar.gz results_sdag.json
+          lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_sdag.json ${{ env.llvm_test_suite_build_dir }}/sdag-O3-build
       - name: Upload Test Resuilts
         uses: actions/upload-artifact@v4
         with:
           name: llvm_test_suite_result_riscv64_sdag
-          path: ${{ env.llvm_build_dir }}/${{ env.llvm_test_suite_result_dir }}/results_sdag.tar.gz
+          path: ${{ env.llvm_build_dir }}/${{ env.llvm_test_suite_result_dir }}/results_sdag.json
+          compression-level: 9
 
   llvm-test-suite-globalisel:
     name: Build and Run LLVM Test Suites with GlobalISel
@@ -118,22 +119,23 @@ jobs:
     steps:
       - name: Install libatomic
         run: apt update && apt install -y libatomic1
-      - name: Create Prebuilt Directory
-        run: |
-          mkdir -p ${{ env.prebuilt_dir }}
-          mkdir -p ${{ env.llvm_prebuilt_dir }}
-      - name: Download Prebuilt LLVM
-        uses: actions/download-artifact@v4
-        with:
-          name: clang_linux_riscv64
-          path: ${{ env.llvm_prebuilt_file }}
-      - name: Decompress Prebuilt LLVM
-        run: |
-          tar -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
       - name: Checkout LLVM build scripts
         uses: actions/checkout@v4
         with:
           path: ${{ env.llvm_build_dir }}
+      - name: Create Prebuilt Directory
+        run: |
+          mkdir -p ${{ env.llvm_build_dir }}/${{ env.prebuilt_dir }}
+      - name: Download LLVM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: clang_linux_riscv64
+          path: ${{ env.llvm_build_dir }}/${{ env.prebuilt_dir }}
+      - name: Decompress Prebuilt LLVM
+        run: |
+          cd ${{ env.llvm_build_dir }}
+          mkdir -p ${{ env.llvm_prebuilt_dir }}
+          tar -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
       - name: Checkout LLVM Test Suites
         run: |
           git clone --depth 1 https://github.com/llvm/llvm-test-suite.git ${{ env.llvm_test_suite_dir }}
@@ -152,11 +154,10 @@ jobs:
           ./script/build_driver.sh --config ./projects/llvm-test-suite-O3-globalisel.yaml --toolchain-install-dir ${{ env.llvm_prebuilt_dir }} --no-install
           pip install lit==18.1.2
           mkdir -p ${{ env.llvm_test_suite_result_dir }}
-          lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_globalisel.json ${{ env.llvm_test_suite_out_dir }}/globalisel-O3-build
-          cd ${{ env.llvm_test_suite_result_dir }}
-          tar -cf results_globalisel.tar.gz results_globalisel.json
+          lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_globalisel.json ${{ env.llvm_test_suite_build_dir }}/globalisel-O3-build
       - name: Upload Test Resuilts
         uses: actions/upload-artifact@v4
         with:
           name: llvm_test_suite_result_riscv64_globalisel
-          path: ${{ env.llvm_build_dir }}/${{ env.llvm_test_suite_result_dir }}/results_globalisel.tar.gz
+          path: ${{ env.llvm_build_dir }}/${{ env.llvm_test_suite_result_dir }}/results_globalisel.json
+          compression-level: 9
