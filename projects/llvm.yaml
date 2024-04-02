@@ -9,6 +9,7 @@ buildTool:
   customConfigureOptions:
     CMAKE_BUILD_TYPE: 'Release'
     LLVM_ENABLE_PROJECTS: 'clang;lld'
+    LLVM_ENABLE_RUNTIMES: 'compiler-rt;libunwind;libcxx;libcxxabi'
     LLVM_TARGETS_TO_BUILD: 'Native;RISCV'
     LLVM_ENABLE_LLD: 'ON'
     LLVM_CCACHE_BUILD: 'ON'

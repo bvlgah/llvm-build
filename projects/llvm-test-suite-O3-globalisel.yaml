@@ -14,7 +14,11 @@ toolchain:
 compilerOption:
   cflags:
     - '-fglobal-isel'
+    - '-rtlib=compiler-rt'
+    - '-unwindlib=libunwind'
   cxxflags:
     - '-fglobal-isel'
+    - '-rtlib=compiler-rt'
+    - '-unwindlib=libunwind'
   ldflags:
     - '-fuse-ld=lld'
