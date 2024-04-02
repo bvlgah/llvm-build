@@ -25,7 +25,7 @@ jobs:
       - name: Install build dependencies
         run: |
           cd ${{ env.llvm_build_dir }}
-          ./script/install_deps_ubuntu.sh
+          ./script/ubuntu/install_build.sh
           python -m venv venv
           . venv/bin/activate
           pip install -r requirements.txt
@@ -37,5 +37,5 @@ jobs:
       - name: Upload LLVM AMD64 binaries
         uses: actions/upload-artifact@v4
         with:
-          name: LLVM AMD64 binaries
+          name: clang_linux_amd64
           path: ${{ env.llvm_build_dir }}/out/llvm/amd64-package/clang-amd64.tar.xz

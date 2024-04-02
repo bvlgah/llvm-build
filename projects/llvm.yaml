@@ -1,5 +1,5 @@
-name: LLVM
-description: LLVM Toolchain
+name: LLVM AMD64
+description: LLVM Toolchain Targeted Linux AMD64
 srcDir: ../llvm-project/llvm
 buildDir: ./out/llvm/amd64-build
 installDir: ./out/llvm/amd64-install

@@ -16,3 +16,5 @@ compilerOption:
     - '-fglobal-isel'
   cxxflags:
     - '-fglobal-isel'
+  ldflags:
+    - '-fuse-ld=lld'
