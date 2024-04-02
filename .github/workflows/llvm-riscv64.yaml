@@ -64,6 +64,8 @@ jobs:
     container:
       image: riscv64/ubuntu:22.04
     steps:
+      - name: Install libatomic
+        run: apt update && apt install -y libatomic1
       - name: Create Prebuilt Directory
         run: |
           mkdir -p ${{ env.prebuilt_dir }}
@@ -114,6 +116,8 @@ jobs:
     container:
       image: riscv64/ubuntu:22.04
     steps:
+      - name: Install libatomic
+        run: apt update && apt install -y libatomic1
       - name: Create Prebuilt Directory
         run: |
           mkdir -p ${{ env.prebuilt_dir }}
