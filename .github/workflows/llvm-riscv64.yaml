@@ -31,7 +31,7 @@ jobs:
           cd ${{ env.llvm_build_dir }}
           mkdir -p ${{ env.llvm_prebuilt_dir }}
           curl -L -o ${{ env.llvm_prebuilt_file }} ${{ env.llvm_cross_riscv64_preubilt_url }}
-          tar -C ${{ env.llvm_prebuilt_dir }} --strip-components=1 ${{ env.llvm_prebuilt_file }}
+          tar -C ${{ env.llvm_prebuilt_dir }} --strip-components=1 -xf ${{ env.llvm_prebuilt_file }}
       - name: Checkout LLVM source code
         run: |
           git clone --depth 1 https://github.com/llvm/llvm-project.git ${{ env.llvm_source_dir }}
