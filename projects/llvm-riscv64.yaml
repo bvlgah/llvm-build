@@ -11,7 +11,7 @@ buildTool:
     LLVM_ENABLE_PROJECTS: 'clang;lld'
     LLVM_ENABLE_RUNTIMES: 'compiler-rt;libcxx;libcxxabi;libunwind'
     LLVM_TARGETS_TO_BUILD: 'RISCV'
-    LLVM_USE_LLD: 'ON'
+    LLVM_ENABLE_LLD: 'ON'
     LLVM_CCACHE_BUILD: 'ON'
     CMAKE_CROSSCOMPILING: 'ON'
     CMAKE_SYSTEM_NAME: 'Linux'
@@ -25,7 +25,10 @@ toolchain:
 compilerOption:
   cflags:
     - '--sysroot=/'
+    - '-I/usr/riscv64-linux-gnu/include'
   cxxflags:
     - '--sysroot=/'
+    - '-I/usr/riscv64-linux-gnu/include'
   ldflags:
     - '--sysroot=/'
+    - '-L/usr/riscv64-linux-gnu/lib'
