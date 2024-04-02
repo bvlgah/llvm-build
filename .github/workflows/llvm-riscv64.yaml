@@ -82,17 +82,21 @@ jobs:
           ./script/ubuntu/install_test.sh
           python -m venv venv
           . venv/bin/activate
-          pip install deps/bin/riscv64/maturin-1.5.1-cp310-cp310-linux_riscv64.whl
           pip install deps/bin/riscv64/pydantic_core-2.16.3-cp310-cp310-linux_riscv64.whl
           pip install -r requirements.txt
-      - name: Build LLVM Test Suites
+      - name: Build and Run LLVM Test Suites
         run: |
           cd ${{ env.llvm_build_dir }}
           . venv/bin/activate
-          ./script/build_driver.sh --config ./projects/llvm-test-suite-O3-sdag.yaml --no-install
+          ./script/build_driver.sh --config ./projects/llvm-test-suite-O3-sdag.yaml --toolchain-install-dir ${{ env.llvm_prebuilt_dir }} --no-install
           pip install lit==18.1.2
           mkdir -p ${{ env.llvm_test_suite_result_dir }}
           lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_sdag.json ${{ env.llvm_test_suite_out_dir }}/sdag-O3-build
+      - name: Upload Test Resuilts
+        uses: actions/upload-artifact@v4
+        with:
+          name: llvm_test_suite_result_riscv64_sdag
+          path: ${{ env.llvm_build_dir }}/${{ env.llvm_test_suite_result_dir }}/results_sdag.json
 
   llvm-test-suite-globalisel:
     name: Build and Run LLVM Test Suites with GlobalISel
@@ -126,14 +130,18 @@ jobs:
           ./script/ubuntu/install_test.sh
           python -m venv venv
           . venv/bin/activate
-          pip install deps/bin/riscv64/maturin-1.5.1-cp310-cp310-linux_riscv64.whl
           pip install deps/bin/riscv64/pydantic_core-2.16.3-cp310-cp310-linux_riscv64.whl
           pip install -r requirements.txt
-      - name: Build LLVM Test Suites
+      - name: Build and Run LLVM Test Suites
         run: |
           cd ${{ env.llvm_build_dir }}
           . venv/bin/activate
-          ./script/build_driver.sh --config ./projects/llvm-test-suite-O3-globalisel.yaml --no-install
+          ./script/build_driver.sh --config ./projects/llvm-test-suite-O3-globalisel.yaml --toolchain-install-dir ${{ env.llvm_prebuilt_dir }} --no-install
           pip install lit==18.1.2
           mkdir -p ${{ env.llvm_test_suite_result_dir }}
           lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_globalisel.json ${{ env.llvm_test_suite_out_dir }}/globalisel-O3-build
+      - name: Upload Test Resuilts
+        uses: actions/upload-artifact@v4
+        with:
+          name: llvm_test_suite_result_riscv64_globalisel
+          path: ${{ env.llvm_build_dir }}/${{ env.llvm_test_suite_result_dir }}/results_globalisel.json

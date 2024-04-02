@@ -6,4 +6,5 @@ test_deps=('tcl' 'tk-dev' 'python3' 'python-is-python3' 'python3-venv'
 
 . $curr_dir/apt_install.sh
 
+export DEBIAN_FRONTEND=noninteractive
 ubuntu_install_package ${test_deps[@]}
