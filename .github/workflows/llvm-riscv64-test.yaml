@@ -13,6 +13,7 @@ env:
   prebuilt_dir: prebuilt
   llvm_prebuilt_dir: prebuilt/clang-riscv64
   llvm_prebuilt_file: prebuilt/clang-riscv64.tar.xz
+  llvm_test_suite_repo: bvlgah/llvm-test-suite
   llvm_test_suite_build_dir: out/llvm-test-suite
   llvm_test_suite_result_dir: out/llvm-test-suite/result
   llvm_cross_riscv64_preubilt_url: https://github.com/riscv-collab/riscv-gnu-toolchain/releases/download/2024.03.01/riscv64-glibc-ubuntu-22.04-llvm-nightly-2024.03.01-nightly.tar.gz
@@ -30,6 +31,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: ${{ env.llvm_build_dir }}
+      - name: Checkout LLVM Test Suites
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.llvm_test_suite_repo }}
+          path: ${{ env.llvm_test_suite_build_dir }}
+          token: ${{ secrests.LLVM_TEST_SUITE_TOKEN }}
       - name: Install Test Dependencies
         run: |
           cd ${{ env.llvm_build_dir }}
@@ -47,9 +54,6 @@ jobs:
           mkdir -p ${{ env.llvm_prebuilt_dir }}
           unzip -d ${{ env.prebuilt_dir }} ./test/bin/clang_linux_riscv64.zip
           tar -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
-      - name: Checkout LLVM Test Suites
-        run: |
-          git clone --depth 1 https://github.com/llvm/llvm-test-suite.git ${{ env.llvm_test_suite_dir }}
       - name: Build and Run LLVM Test Suites
         run: |
           cd ${{ env.llvm_build_dir }}
@@ -78,6 +82,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: ${{ env.llvm_build_dir }}
+      - name: Checkout LLVM Test Suites
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.llvm_test_suite_repo }}
+          path: ${{ env.llvm_test_suite_build_dir }}
+          token: ${{ secrests.LLVM_TEST_SUITE_TOKEN }}
       - name: Install Test Dependencies
         run: |
           cd ${{ env.llvm_build_dir }}
@@ -95,9 +105,6 @@ jobs:
           mkdir -p ${{ env.llvm_prebuilt_dir }}
           unzip -d ${{ env.prebuilt_dir }} ./test/bin/clang_linux_riscv64.zip
           tar -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
-      - name: Checkout LLVM Test Suites
-        run: |
-          git clone --depth 1 https://github.com/llvm/llvm-test-suite.git ${{ env.llvm_test_suite_dir }}
       - name: Build and Run LLVM Test Suites
         run: |
           cd ${{ env.llvm_build_dir }}
