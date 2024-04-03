@@ -57,6 +57,7 @@ jobs:
           name: clang_linux_riscv64
           path: ${{ env.llvm_build_dir }}/out/llvm/riscv64-package/clang-riscv64.tar.xz
           compression-level: 0
+          retention-days: 7
 
   llvm-test-suite-sdag:
     name: Build and Run LLVM Test Suites with SelectionDAG

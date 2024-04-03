@@ -51,6 +51,7 @@ jobs:
           name: llvm_test_suite_result_riscv64_sdag
           path: ${{ env.llvm_build_dir }}/${{ env.llvm_test_suite_result_dir }}/results_sdag.json
           compression-level: 9
+          retention-days: 30
 
   llvm-test-suite-globalisel:
     name: Build and Run LLVM Test Suites with GlobalISel
@@ -87,3 +88,4 @@ jobs:
           name: llvm_test_suite_result_riscv64_globalisel
           path: ${{ env.llvm_build_dir }}/${{ env.llvm_test_suite_result_dir }}/results_globalisel.json
           compression-level: 9
+          retention-days: 30

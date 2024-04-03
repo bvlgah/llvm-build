@@ -39,3 +39,4 @@ jobs:
         with:
           name: clang_linux_amd64
           path: ${{ env.llvm_build_dir }}/out/llvm/amd64-package/clang-amd64.tar.xz
+          retention-days: 7
