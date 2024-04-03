@@ -25,7 +25,7 @@ jobs:
       image: riscv64/ubuntu:22.04
     steps:
       - name: Install libatomic
-        run: apt update && apt install -y libatomic1 unzip
+        run: apt update && apt install -y libatomic1
       - name: Checkout LLVM build scripts
         uses: actions/checkout@v4
         with:
@@ -59,6 +59,7 @@ jobs:
           mkdir -p ${{ env.llvm_test_suite_result_dir }}
           lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_sdag.json ${{ env.llvm_test_suite_build_dir }}/sdag-O3-build
       - name: Upload Test Resuilts
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: llvm_test_suite_result_riscv64_sdag
@@ -72,7 +73,7 @@ jobs:
       image: riscv64/ubuntu:22.04
     steps:
       - name: Install libatomic
-        run: apt update && apt install -y libatomic1 unzip
+        run: apt update && apt install -y libatomic1
       - name: Checkout LLVM build scripts
         uses: actions/checkout@v4
         with:
@@ -106,6 +107,7 @@ jobs:
           mkdir -p ${{ env.llvm_test_suite_result_dir }}
           lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_globalisel.json ${{ env.llvm_test_suite_build_dir }}/globalisel-O3-build
       - name: Upload Test Resuilts
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: llvm_test_suite_result_riscv64_globalisel
