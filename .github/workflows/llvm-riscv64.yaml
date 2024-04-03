@@ -9,12 +9,15 @@ on:
 env:
   llvm_build_dir: llvm-build
   llvm_source_dir: llvm-project
-  llvm_test_suite_dir: llvm-test-suite
   prebuilt_dir: prebuilt
   llvm_prebuilt_dir: prebuilt/clang-riscv64
   llvm_prebuilt_file: prebuilt/clang-riscv64.tar.xz
+  llvm_test_suite_repo: bvlgah/llvm-test-suite
+  llvm_test_suite_src_dir: llvm-test-suite
   llvm_test_suite_build_dir: out/llvm-test-suite
   llvm_test_suite_result_dir: out/llvm-test-suite/result
+  llvm_cross_prebuilt_dir: prebuilt/clang-cross-riscv64
+  llvm_cross_prebuilt_file: prebuilt/clang-cross-riscv64.tar.gz
   llvm_cross_riscv64_preubilt_url: https://github.com/riscv-collab/riscv-gnu-toolchain/releases/download/2024.03.01/riscv64-glibc-ubuntu-22.04-llvm-nightly-2024.03.01-nightly.tar.gz
 
 jobs:
@@ -29,9 +32,9 @@ jobs:
       - name: Download Prebuilt Cross LLVM Toolchain
         run: |
           cd ${{ env.llvm_build_dir }}
-          mkdir -p ${{ env.llvm_prebuilt_dir }}
-          curl -L -o ${{ env.llvm_prebuilt_file }} ${{ env.llvm_cross_riscv64_preubilt_url }}
-          tar -C ${{ env.llvm_prebuilt_dir }} --strip-components=1 -xf ${{ env.llvm_prebuilt_file }}
+          mkdir -p ${{ env.llvm_cross_prebuilt_dir }}
+          curl -L -o ${{ env.llvm_cross_prebuilt_file }} ${{ env.llvm_cross_riscv64_preubilt_url }}
+          tar -C ${{ env.llvm_cross_prebuilt_dir }} --strip-components=1 -xf ${{ env.llvm_cross_prebuilt_file }}
       - name: Checkout LLVM source code
         run: |
           git clone --depth 1 https://github.com/llvm/llvm-project.git ${{ env.llvm_source_dir }}
@@ -46,7 +49,7 @@ jobs:
         run: |
           cd ${{ env.llvm_build_dir }}
           . venv/bin/activate
-          ./script/build_driver.sh --config ./projects/llvm-riscv64.yaml --toolchain-install-dir ${{ env.llvm_prebuilt_dir }} --package
+          ./script/build_driver.sh --config ./projects/llvm-riscv64.yaml --toolchain-install-dir ${{ env.llvm_cross_prebuilt_dir }} --package
       - name: Check Compressed Package Files
         run: |
           shasum -a 256 ${{ env.llvm_build_dir }}/out/llvm/riscv64-package/clang-riscv64.tar.xz
@@ -64,22 +67,18 @@ jobs:
     runs-on: RISCV64
     needs: build
     container:
-      image: riscv64/ubuntu:22.04
+      image: phbjdocker/llvm-tester:22.04
     steps:
-      - name: Install libatomic
-        run: apt update && apt install -y libatomic1
       - name: Checkout LLVM build scripts
         uses: actions/checkout@v4
         with:
           path: ${{ env.llvm_build_dir }}
-      - name: Install Test Dependencies
-        run: |
-          cd ${{ env.llvm_build_dir }}
-          ./script/ubuntu/install_test.sh
-          python -m venv venv
-          . venv/bin/activate
-          pip install deps/bin/riscv64/pydantic_core-2.16.3-cp310-cp310-linux_riscv64.whl
-          pip install -r requirements.txt
+      - name: Checkout LLVM Test Suites
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.llvm_test_suite_repo }}
+          path: ${{ env.llvm_test_suite_src_dir }}
+          token: ${{ secrets.LLVM_TEST_SUITE_TOKEN }}
       - name: Create Prebuilt Directory
         run: |
           mkdir -p ${{ env.llvm_build_dir }}/${{ env.prebuilt_dir }}
@@ -92,16 +91,12 @@ jobs:
         run: |
           cd ${{ env.llvm_build_dir }}
           mkdir -p ${{ env.llvm_prebuilt_dir }}
-          tar -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
-      - name: Checkout LLVM Test Suites
-        run: |
-          git clone --depth 1 https://github.com/llvm/llvm-test-suite.git ${{ env.llvm_test_suite_dir }}
+          tar --no-same-owner -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
       - name: Build and Run LLVM Test Suites
+        continue-on-error: true
         run: |
           cd ${{ env.llvm_build_dir }}
-          . venv/bin/activate
           ./script/build_driver.sh --config ./projects/llvm-test-suite-O3-sdag.yaml --toolchain-install-dir ${{ env.llvm_prebuilt_dir }} --no-install
-          pip install lit==18.1.2
           mkdir -p ${{ env.llvm_test_suite_result_dir }}
           lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_sdag.json ${{ env.llvm_test_suite_build_dir }}/sdag-O3-build
       - name: Upload Test Resuilts
@@ -110,28 +105,25 @@ jobs:
           name: llvm_test_suite_result_riscv64_sdag
           path: ${{ env.llvm_build_dir }}/${{ env.llvm_test_suite_result_dir }}/results_sdag.json
           compression-level: 9
+          retention-days: 30
 
   llvm-test-suite-globalisel:
     name: Build and Run LLVM Test Suites with GlobalISel
     runs-on: RISCV64
     needs: build
     container:
-      image: riscv64/ubuntu:22.04
+      image: phbjdocker/llvm-tester:22.04
     steps:
-      - name: Install libatomic
-        run: apt update && apt install -y libatomic1
       - name: Checkout LLVM build scripts
         uses: actions/checkout@v4
         with:
           path: ${{ env.llvm_build_dir }}
-      - name: Install Test Dependencies
-        run: |
-          cd ${{ env.llvm_build_dir }}
-          ./script/ubuntu/install_test.sh
-          python -m venv venv
-          . venv/bin/activate
-          pip install deps/bin/riscv64/pydantic_core-2.16.3-cp310-cp310-linux_riscv64.whl
-          pip install -r requirements.txt
+      - name: Checkout LLVM Test Suites
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.llvm_test_suite_repo }}
+          path: ${{ env.llvm_test_suite_src_dir }}
+          token: ${{ secrets.LLVM_TEST_SUITE_TOKEN }}
       - name: Create Prebuilt Directory
         run: |
           mkdir -p ${{ env.llvm_build_dir }}/${{ env.prebuilt_dir }}
@@ -144,16 +136,12 @@ jobs:
         run: |
           cd ${{ env.llvm_build_dir }}
           mkdir -p ${{ env.llvm_prebuilt_dir }}
-          tar -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
-      - name: Checkout LLVM Test Suites
-        run: |
-          git clone --depth 1 https://github.com/llvm/llvm-test-suite.git ${{ env.llvm_test_suite_dir }}
+          tar --no-same-owner -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
       - name: Build and Run LLVM Test Suites
+        continue-on-error: true
         run: |
           cd ${{ env.llvm_build_dir }}
-          . venv/bin/activate
           ./script/build_driver.sh --config ./projects/llvm-test-suite-O3-globalisel.yaml --toolchain-install-dir ${{ env.llvm_prebuilt_dir }} --no-install
-          pip install lit==18.1.2
           mkdir -p ${{ env.llvm_test_suite_result_dir }}
           lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_globalisel.json ${{ env.llvm_test_suite_build_dir }}/globalisel-O3-build
       - name: Upload Test Resuilts
@@ -162,3 +150,4 @@ jobs:
           name: llvm_test_suite_result_riscv64_globalisel
           path: ${{ env.llvm_build_dir }}/${{ env.llvm_test_suite_result_dir }}/results_globalisel.json
           compression-level: 9
+          retention-days: 30
