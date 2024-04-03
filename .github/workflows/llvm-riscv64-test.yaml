@@ -25,7 +25,7 @@ jobs:
       image: riscv64/ubuntu:22.04
     steps:
       - name: Install libatomic
-        run: apt update && apt install -y libatomic1
+        run: apt update && apt install -y libatomic1 unzip
       - name: Checkout LLVM build scripts
         uses: actions/checkout@v4
         with:
@@ -41,15 +41,11 @@ jobs:
       - name: Create Prebuilt Directory
         run: |
           mkdir -p ${{ env.llvm_build_dir }}/${{ env.prebuilt_dir }}
-      - name: Download LLVM artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: clang_linux_riscv64
-          path: ${{ env.llvm_build_dir }}/${{ env.prebuilt_dir }}
       - name: Decompress Prebuilt LLVM
         run: |
           cd ${{ env.llvm_build_dir }}
           mkdir -p ${{ env.llvm_prebuilt_dir }}
+          unzip -d ${{ env.prebuilt_dir }} ./test/bin/clang_linux_riscv64.zip
           tar -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
       - name: Checkout LLVM Test Suites
         run: |
@@ -76,7 +72,7 @@ jobs:
       image: riscv64/ubuntu:22.04
     steps:
       - name: Install libatomic
-        run: apt update && apt install -y libatomic1
+        run: apt update && apt install -y libatomic1 unzip
       - name: Checkout LLVM build scripts
         uses: actions/checkout@v4
         with:
@@ -92,15 +88,11 @@ jobs:
       - name: Create Prebuilt Directory
         run: |
           mkdir -p ${{ env.llvm_build_dir }}/${{ env.prebuilt_dir }}
-      - name: Download LLVM artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: clang_linux_riscv64
-          path: ${{ env.llvm_build_dir }}/${{ env.prebuilt_dir }}
       - name: Decompress Prebuilt LLVM
         run: |
           cd ${{ env.llvm_build_dir }}
           mkdir -p ${{ env.llvm_prebuilt_dir }}
+          unzip -d ${{ env.prebuilt_dir }} ./test/bin/clang_linux_riscv64.zip
           tar -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
       - name: Checkout LLVM Test Suites
         run: |
