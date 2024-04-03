@@ -20,10 +20,8 @@ jobs:
     name: Build and Run LLVM Test Suites with SelectionDAG
     runs-on: RISCV64
     container:
-      image: riscv64/ubuntu:22.04
+      image: phbjdocker/llvm-tester:22.04
     steps:
-      - name: Install libatomic
-        run: apt update && apt install -y libatomic1
       - name: Checkout LLVM build scripts
         uses: actions/checkout@v4
         with:
@@ -37,7 +35,6 @@ jobs:
       - name: Install Test Dependencies
         run: |
           cd ${{ env.llvm_build_dir }}
-          ./script/ubuntu/install_test.sh
           python -m venv venv
           . venv/bin/activate
           pip install deps/bin/riscv64/pydantic_core-2.16.3-cp310-cp310-linux_riscv64.whl
@@ -71,10 +68,8 @@ jobs:
     name: Build and Run LLVM Test Suites with GlobalISel
     runs-on: RISCV64
     container:
-      image: riscv64/ubuntu:22.04
+      image: phbjdocker/llvm-tester:22.04
     steps:
-      - name: Install libatomic
-        run: apt update && apt install -y libatomic1
       - name: Checkout LLVM build scripts
         uses: actions/checkout@v4
         with:
@@ -88,7 +83,6 @@ jobs:
       - name: Install Test Dependencies
         run: |
           cd ${{ env.llvm_build_dir }}
-          ./script/ubuntu/install_test.sh
           python -m venv venv
           . venv/bin/activate
           pip install deps/bin/riscv64/pydantic_core-2.16.3-cp310-cp310-linux_riscv64.whl
