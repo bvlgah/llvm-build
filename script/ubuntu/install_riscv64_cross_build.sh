@@ -2,7 +2,7 @@
 set -ex
 
 curr_dir=$(cd $(dirname $0) && pwd)
-build_deps=('ninja-build' 'cmake' 'tar' 'xz-utils' 'ccache'
+build_deps=('ninja-build' 'cmake' 'tar' 'xz-utils' 'ccache' 'unzip' 'git'
             'gcc-riscv64-linux-gnu' 'g++-riscv64-linux-gnu'
             'python3' 'python-is-python3' 'python3-pip' 'python3-venv')
 
