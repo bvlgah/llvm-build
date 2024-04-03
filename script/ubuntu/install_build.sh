@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -ex
 
 curr_dir=$(cd $(dirname $0) && pwd)
