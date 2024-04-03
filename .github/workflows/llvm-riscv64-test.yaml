@@ -1,9 +1,6 @@
 name: LLVM Toolchain RISCV64 (Test)
 run-name: CI/CD for LLVM Toolchain RISCV64 (Test)
 on:
-  schedule:
-    # Run at 8:00 UTC every single day
-    - cron: '0 8 * * *'
   workflow_dispatch:
 
 env:
