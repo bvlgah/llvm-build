@@ -4,5 +4,7 @@ RUN mkdir -p /opt/install-test-deps/
 COPY ./script/ubuntu/apt_install.sh /opt/install-test-deps/
 COPY ./script/ubuntu/install_test.sh /opt/install-test-deps/
 COPY ./deps/bin/riscv64/*.whl /opt/install-test-deps/
+COPY ./requirements.txt /opt/install-test-deps/
 RUN /opt/install-test-deps/install_test.sh
-RUN pip install /opt/install-test-deps/*.whl
+RUN pip install --no-cache-dir /opt/install-test-deps/*.whl
+RUN pip install --no-cache-dir -r /opt/install-test-deps/requirements.txt

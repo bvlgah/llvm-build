@@ -32,29 +32,17 @@ jobs:
           repository: ${{ env.llvm_test_suite_repo }}
           path: ${{ env.llvm_test_suite_src_dir }}
           token: ${{ secrets.LLVM_TEST_SUITE_TOKEN }}
-      - name: Install Test Dependencies
-        run: |
-          cd ${{ env.llvm_build_dir }}
-          python -m venv venv
-          . venv/bin/activate
-          pip install deps/bin/riscv64/pydantic_core-2.16.3-cp310-cp310-linux_riscv64.whl
-          pip install -r requirements.txt
-      - name: Create Prebuilt Directory
-        run: |
-          mkdir -p ${{ env.llvm_build_dir }}/${{ env.prebuilt_dir }}
       - name: Decompress Prebuilt LLVM
         run: |
           cd ${{ env.llvm_build_dir }}
           mkdir -p ${{ env.llvm_prebuilt_dir }}
           unzip -d ${{ env.prebuilt_dir }} ./test/bin/clang_linux_riscv64.zip
-          tar -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
+          tar --no-same-owner -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
       - name: Build and Run LLVM Test Suites
         continue-on-error: true
         run: |
           cd ${{ env.llvm_build_dir }}
-          . venv/bin/activate
           ./script/build_driver.sh --config ./projects/llvm-test-suite-O3-sdag.yaml --toolchain-install-dir ${{ env.llvm_prebuilt_dir }} --no-install
-          pip install lit==18.1.2
           mkdir -p ${{ env.llvm_test_suite_result_dir }}
           lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_sdag.json ${{ env.llvm_test_suite_build_dir }}/sdag-O3-build
       - name: Upload Test Resuilts
@@ -80,29 +68,17 @@ jobs:
           repository: ${{ env.llvm_test_suite_repo }}
           path: ${{ env.llvm_test_suite_src_dir }}
           token: ${{ secrets.LLVM_TEST_SUITE_TOKEN }}
-      - name: Install Test Dependencies
-        run: |
-          cd ${{ env.llvm_build_dir }}
-          python -m venv venv
-          . venv/bin/activate
-          pip install deps/bin/riscv64/pydantic_core-2.16.3-cp310-cp310-linux_riscv64.whl
-          pip install -r requirements.txt
-      - name: Create Prebuilt Directory
-        run: |
-          mkdir -p ${{ env.llvm_build_dir }}/${{ env.prebuilt_dir }}
       - name: Decompress Prebuilt LLVM
         run: |
           cd ${{ env.llvm_build_dir }}
           mkdir -p ${{ env.llvm_prebuilt_dir }}
           unzip -d ${{ env.prebuilt_dir }} ./test/bin/clang_linux_riscv64.zip
-          tar -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
+          tar --no-same-owner -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
       - name: Build and Run LLVM Test Suites
         continue-on-error: true
         run: |
           cd ${{ env.llvm_build_dir }}
-          . venv/bin/activate
           ./script/build_driver.sh --config ./projects/llvm-test-suite-O3-globalisel.yaml --toolchain-install-dir ${{ env.llvm_prebuilt_dir }} --no-install
-          pip install lit==18.1.2
           mkdir -p ${{ env.llvm_test_suite_result_dir }}
           lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_globalisel.json ${{ env.llvm_test_suite_build_dir }}/globalisel-O3-build
       - name: Upload Test Resuilts
