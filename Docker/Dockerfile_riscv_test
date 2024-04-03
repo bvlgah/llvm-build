@@ -1,6 +1,8 @@
 FROM riscv64/ubuntu:22.04
 
 RUN mkdir -p /opt/install-test-deps/
-COPY ../script/ubuntu/apt_install.sh /opt/install-test-deps/
-COPY ../script/ubuntu/install_test.sh /opt/install-test-deps/
+COPY ./script/ubuntu/apt_install.sh /opt/install-test-deps/
+COPY ./script/ubuntu/install_test.sh /opt/install-test-deps/
+COPY ./deps/bin/riscv64/*.whl /opt/install-test-deps/
+RUN pip install /opt/install-test-deps/*.whl
 RUN /opt/install-test-deps/install_test.sh
