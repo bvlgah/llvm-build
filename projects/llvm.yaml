@@ -17,5 +17,7 @@ buildTool:
     LLVM_BUILD_EXAMPLES: 'OFF'
     LLVM_BUILD_BENCHMARKS: 'OFF'
     LLVM_BUILD_TESTS: 'OFF'
+    LLVM_BUILTIN_TARGETS: 'default;riscv64-linux-gnu'
+    LLVM_RUNTIME_TARGETS: 'default;riscv64-linux-gnu'
 toolchain:
   name: clang
