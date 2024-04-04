@@ -26,6 +26,7 @@ jobs:
         run: |
           cd ${{ env.llvm_build_dir }}
           ./script/ubuntu/install_build.sh
+          ./script/ubuntu/install_riscv64_cross_build.sh
           python -m venv venv
           . venv/bin/activate
           pip install -r requirements.txt
