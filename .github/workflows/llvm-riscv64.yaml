@@ -93,13 +93,13 @@ jobs:
           mkdir -p ${{ env.llvm_prebuilt_dir }}
           tar --no-same-owner -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
       - name: Build and Run LLVM Test Suites
-        continue-on-error: true
         run: |
           cd ${{ env.llvm_build_dir }}
           ./script/build_driver.sh --config ./projects/llvm-test-suite-O3-sdag.yaml --toolchain-install-dir ${{ env.llvm_prebuilt_dir }} --no-install
           mkdir -p ${{ env.llvm_test_suite_result_dir }}
           lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_sdag.json ${{ env.llvm_test_suite_build_dir }}/sdag-O3-build
       - name: Upload Test Resuilts
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: llvm_test_suite_result_riscv64_sdag
@@ -138,13 +138,13 @@ jobs:
           mkdir -p ${{ env.llvm_prebuilt_dir }}
           tar --no-same-owner -C ${{ env.llvm_prebuilt_dir }} -xf ${{ env.llvm_prebuilt_file }}
       - name: Build and Run LLVM Test Suites
-        continue-on-error: true
         run: |
           cd ${{ env.llvm_build_dir }}
           ./script/build_driver.sh --config ./projects/llvm-test-suite-O3-globalisel.yaml --toolchain-install-dir ${{ env.llvm_prebuilt_dir }} --no-install
           mkdir -p ${{ env.llvm_test_suite_result_dir }}
           lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_globalisel.json ${{ env.llvm_test_suite_build_dir }}/globalisel-O3-build
       - name: Upload Test Resuilts
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: llvm_test_suite_result_riscv64_globalisel
