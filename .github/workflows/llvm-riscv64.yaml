@@ -24,7 +24,7 @@ env:
 jobs:
   build:
     name: Build LLVM Toolchain RISCV64
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout LLVM build scripts
         uses: actions/checkout@v4
