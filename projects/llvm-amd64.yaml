@@ -10,14 +10,14 @@ buildTool:
     CMAKE_BUILD_TYPE: 'Release'
     LLVM_ENABLE_PROJECTS: 'clang;lld'
     LLVM_ENABLE_RUNTIMES: 'compiler-rt;libunwind;libcxx;libcxxabi'
-    LLVM_TARGETS_TO_BUILD: 'Native;RISCV'
+    LLVM_TARGETS_TO_BUILD: 'X86;RISCV'
     LLVM_ENABLE_LLD: 'ON'
     LLVM_CCACHE_BUILD: 'ON'
     BUILD_SHARED_LIBS: 'ON'
     LLVM_BUILD_EXAMPLES: 'OFF'
     LLVM_BUILD_BENCHMARKS: 'OFF'
     LLVM_BUILD_TESTS: 'OFF'
-    LLVM_BUILTIN_TARGETS: 'default;riscv64-linux-gnu'
-    LLVM_RUNTIME_TARGETS: 'default;riscv64-linux-gnu'
+    LLVM_BUILTIN_TARGETS: 'x86_64-unknown-linux-gnu;riscv64-unknown-linux-gnu'
+    LLVM_RUNTIME_TARGETS: 'x86_64-unknown-linux-gnu;riscv64-unknown-linux-gnu'
 toolchain:
   name: clang
