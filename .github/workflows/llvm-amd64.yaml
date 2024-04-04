@@ -33,7 +33,7 @@ jobs:
         run: |
           cd ${{ env.llvm_build_dir }}
           . venv/bin/activate
-          ./script/build_driver.sh --config ./projects/llvm-amd.yaml --package
+          ./script/build_driver.sh --config ./projects/llvm-amd64.yaml --package
       - name: Upload LLVM AMD64 binaries
         uses: actions/upload-artifact@v4
         with:
