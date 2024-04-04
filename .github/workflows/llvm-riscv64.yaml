@@ -19,6 +19,7 @@ env:
   llvm_cross_prebuilt_dir: prebuilt/clang-cross-riscv64
   llvm_cross_prebuilt_file: prebuilt/clang-cross-riscv64.tar.gz
   llvm_cross_riscv64_preubilt_url: https://github.com/riscv-collab/riscv-gnu-toolchain/releases/download/2024.03.01/riscv64-glibc-ubuntu-22.04-llvm-nightly-2024.03.01-nightly.tar.gz
+  riscv64_target: riscv64-unknown-linux-gnu
 
 jobs:
   build:
@@ -97,7 +98,7 @@ jobs:
           cd ${{ env.llvm_build_dir }}
           ./script/build_driver.sh --config ./projects/llvm-test-suite-O3-sdag.yaml --toolchain-install-dir ${{ env.llvm_prebuilt_dir }} --no-install
           mkdir -p ${{ env.llvm_test_suite_result_dir }}
-          lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_sdag.json ${{ env.llvm_test_suite_build_dir }}/sdag-O3-build
+          LD_LIBRARY_PATH=${{ env.llvm_prebuilt_dir }}/lib/${{ env.riscv64_target }} lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_sdag.json ${{ env.llvm_test_suite_build_dir }}/sdag-O3-build
       - name: Upload Test Resuilts
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -142,7 +143,7 @@ jobs:
           cd ${{ env.llvm_build_dir }}
           ./script/build_driver.sh --config ./projects/llvm-test-suite-O3-globalisel.yaml --toolchain-install-dir ${{ env.llvm_prebuilt_dir }} --no-install
           mkdir -p ${{ env.llvm_test_suite_result_dir }}
-          lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_globalisel.json ${{ env.llvm_test_suite_build_dir }}/globalisel-O3-build
+          LD_LIBRARY_PATH=${{ env.llvm_prebuilt_dir }}/lib/${{ env.riscv64_target }} lit -v -j 1 -o ${{ env.llvm_test_suite_result_dir }}/results_globalisel.json ${{ env.llvm_test_suite_build_dir }}/globalisel-O3-build
       - name: Upload Test Resuilts
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
