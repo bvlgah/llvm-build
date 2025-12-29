@@ -1,0 +1,23 @@
+name: LLVM AMD64
+description: LLVM Toolchain Targeted Linux AMD64
+srcDir: ../llvm-project/llvm
+buildDir: ./out/llvm/amd64-build
+installDir: ./out/llvm/amd64-install
+packagePathPrefix: ./out/llvm/amd64-package/clang-amd64
+buildTool:
+  name: cmake
+  customConfigureOptions:
+    CMAKE_BUILD_TYPE: 'Release'
+    LLVM_ENABLE_PROJECTS: 'clang'
+    LLVM_TARGETS_TO_BUILD: 'Native'
+    LLVM_ENABLE_LLD: 'ON'
+    LLVM_CCACHE_BUILD: 'ON'
+    BUILD_SHARED_LIBS: 'ON'
+    LLVM_BUILD_EXAMPLES: 'OFF'
+    LLVM_BUILD_BENCHMARKS: 'OFF'
+    LLVM_BUILD_TESTS: 'OFF'
+    LLVM_ENABLE_RTTI: 'ON'
+    LLVM_ENABLE_EH: 'ON'
+toolchain:
+  name: clang
+  path: /lib/llvm-20/
