@@ -1,3 +1,14 @@
 {
-  "extraPaths": [ "./builders", "./test" ]
+  "venvPath": ".",
+  "venv": ".env",
+  "include": ["src", "tests"],
+  "exclude": [
+      "**/.venv",
+      "**/.env",
+      "**/build",
+      "**/dist",
+      "**/__pycache__"
+  ],
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "standard"
 }

@@ -1,0 +1,64 @@
+[build-system]
+build-backend = "uv_build"
+requires = [
+    "uv_build>=0.9.18,<0.10.0",
+    "uv-dynamic-versioning>=0.12.0",
+]
+
+[project]
+name = "llvm-build"
+version = "0.1.0"
+description = "A utility to build LLVM and related tools"
+authors = [
+    { name = "Hongbin Jin", email = "octopus.busts_0w@icloud.com" },
+]
+requires-python = ">=3.12"
+classifiers = [
+    # List of classifiers https://pypi.org/classifiers/
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: POSIX",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Programming Language :: Python :: Free Threading",
+    "Programming Language :: Python :: Free Threading :: 1 - Unstable",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Software Development :: Compilers",
+]
+license = "Apache-2.0"
+license-files = [
+    "LICENSE",
+]
+dependencies = [
+    "pydantic>=2.6.4,<3.0.0",
+    "pydantic_settings>=2.6.4,<3.0.0",
+    "PyYAML>=6.0.1",
+    "typing-extensions>=4.15.0",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.5.1",
+    "pyright>=1.1.407",
+    "ruff>=0.14.10",
+]
+test = [
+    { include-group = "dev" },
+    "pytest>=9.0.2",
+    "coverage>=7.13.1",
+    "hypothesis>=6.148.8",
+]
+all = [
+    { include-group = "dev" },
+    { include-group = "test" },
+]
+
+[project.scripts]
+llvm-build = "llvm_build.builders.driver:main"

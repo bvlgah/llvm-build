@@ -9,7 +9,7 @@ buildTool:
     initialCache: ../llvm-test-suite/cmake/caches/O3.cmake
 
 toolchain:
-  name: clang
+  name: llvm
 
 compilerOption:
   cflags:

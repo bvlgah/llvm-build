@@ -26,7 +26,7 @@ buildTool:
     CMAKE_FIND_ROOT_PATH_MODE_PACKAGE: 'ONLY'
     CMAKE_FIND_ROOT_PATH_MODE_PROGRAM: 'ONLY'
 toolchain:
-  name: clang
+  name: llvm
 compilerOption:
   cflags:
     - '--sysroot=/'

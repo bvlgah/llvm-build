@@ -1,0 +1,44 @@
+# Global settings
+line-length = 80
+indent-width = 4
+target-version = "py312"
+# If you want, add project-specific excludes (Ruff also has sensible defaults)
+extend-exclude = [
+    "build",
+    "dist",
+    ".venv",
+    ".env",
+]
+
+[lint]
+# A strong default set; trim as desired
+select = [
+    "E",
+    "F",
+    "I",
+    "B",
+    "UP",
+    "SIM",
+    "ARG",
+    "RUF",
+]
+# Common choice when using an auto-formatter
+ignore = [
+    "E501",
+    "PLC0415", # import should be at top level of package
+]
+# Optional: make it explicit that everything is fixable when using --fix
+fixable = [
+    "ALL",
+]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+[lint.per-file-ignores]
+# Typical: tests often legitimately break some “clean code” rules
+"tests/**" = [
+    "ARG",
+]

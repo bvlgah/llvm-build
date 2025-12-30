@@ -1,9 +1,9 @@
 name: LLVM AMD64
 description: LLVM Toolchain Targeted Linux AMD64
-srcDir: ../llvm-project/llvm
-buildDir: ./out/llvm/amd64-build
-installDir: ./out/llvm/amd64-install
-packagePathPrefix: ./out/llvm/amd64-package/clang-amd64
+srcDir: /opt/code/compilers/llvm-project/llvm
+buildDir: /opt/build/out/llvm/amd64-build
+installDir: /opt/build/out/llvm/amd64-install
+packagePathPrefix: /opt/build/out/llvm/amd64-package/clang-amd64
 buildTool:
   name: cmake
   customConfigureOptions:
@@ -19,5 +19,12 @@ buildTool:
     LLVM_ENABLE_RTTI: 'ON'
     LLVM_ENABLE_EH: 'ON'
 toolchain:
-  name: clang
-  path: /lib/llvm-20/
+  name: llvm
+compilerOptions:
+  cflags:
+    - '-g1' # Emit debug line number tables only
+  cxxflags:
+    - '-g1' # Emit debug line number tables only
+    - '-stdlib=libc++' # Use LLVM's libc++
+  ldflgas:
+    - '-fuse-ld=lld'
