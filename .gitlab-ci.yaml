@@ -1,0 +1,19 @@
+default:
+  image: python:3.12
+  before_script:
+    - pip install -q uv
+    - uv pip install --group all
+  tags:
+    - docker
+
+code-checking:
+  stage: build
+  script:
+    - pre-commit install --install-hooks
+    - pre-commit run --all-files
+
+run-unit-test:
+  stage: test
+  script:
+    - uv pip install .
+    - pytest tests/unittest
