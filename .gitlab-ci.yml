@@ -2,7 +2,10 @@ default:
   image: python:3.12
   before_script:
     - pip install -q uv
-    - uv pip install --group all
+    - uv venv .env
+    - . .env/bin/activate
+    - uv pip install -r pyproject.toml
+    - uv pip install -q --group all
   tags:
     - docker
 
