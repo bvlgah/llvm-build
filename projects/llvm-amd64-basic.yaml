@@ -20,7 +20,7 @@ buildTool:
     LLVM_ENABLE_EH: 'ON'
 toolchain:
   name: llvm
-compilerOptions:
+compilerOption:
   cflags:
     - '-g1' # Emit debug line number tables only
   cxxflags:

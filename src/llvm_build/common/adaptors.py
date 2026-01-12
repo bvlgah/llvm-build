@@ -12,16 +12,19 @@ class CompilerOptionDefineProvider(AbstractCMakeDefineProvider):
         self._option = option
 
     def getDefines(self) -> dict[str, str]:
-        cflags: str = " ".join(self._option.getCFlags())
-        cxxflags: str = " ".join(self._option.getCXXFlags())
-        ldflags: str = " ".join(self._option.getLDFlags())
-        defines: dict[str, str] = {
-            "CMAKE_C_FLAGS": cflags,
-            "CMAKE_CXX_FLAGS": cxxflags,
-            "CMAKE_EXE_LINKER_FLAGS": ldflags,
-            "CMAKE_MODULE_LINKER_FLAGS": ldflags,
-            "CMAKE_SHARED_LINKER_FLAGS": ldflags,
-        }
+        defines: dict[str, str] = dict()
+        cflags = self._option.getCFlags()
+        if cflags:
+            defines["CMAKE_C_FLAGS"] = " ".join(cflags)
+        cxxflags = self._option.getCXXFlags()
+        if cxxflags:
+            defines["CMAKE_CXX_FLAGS"] = " ".join(cxxflags)
+        ldflags = self._option.getLDFlags()
+        if ldflags:
+            value = " ".join(ldflags)
+            defines["CMAKE_EXE_LINKER_FLAGS"] = value
+            defines["CMAKE_MODULE_LINKER_FLAGS"] = value
+            defines["CMAKE_SHARED_LINKER_FLAGS"] = value
         return defines
 
 
