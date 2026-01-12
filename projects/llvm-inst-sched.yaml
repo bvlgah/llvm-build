@@ -23,7 +23,7 @@ buildTool:
     LLVM_ENABLE_DUMP: 'ON' # Enable dumping
 toolchain:
   name: llvm
-compilerOptions:
+compilerOption:
   cflags:
     - '-g1' # Emit debug line number tables only
   cxxflags:

@@ -50,7 +50,7 @@ def _resolvePath(path: Path | None) -> Path | None:
 
 
 class _CompilerOptionConfig(BaseModel):
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, extra="forbid")
 
     cflags: list[str] = []
     cxxflags: list[str] = []
@@ -66,7 +66,7 @@ _NonNullableProjectRootBasedPath = Annotated[
 
 
 class _ToolchainConfig(BaseModel):
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, extra="forbid")
 
     name: ToolchainKind
     installDir: _NullableProjectRootBasedPath = None
@@ -74,7 +74,7 @@ class _ToolchainConfig(BaseModel):
 
 
 class _BuildToolConfig(BaseModel):
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, extra="forbid")
 
     name: BuilderKind
     customConfigureOptions: dict[str, str] = dict()
@@ -83,7 +83,7 @@ class _BuildToolConfig(BaseModel):
 
 
 class _ProjectConfig(BaseModel):
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, extra="forbid")
 
     name: str
     description: str = ""
