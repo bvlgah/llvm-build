@@ -8,11 +8,11 @@ _loggingFormat = (
 )
 
 
-def _config_logging():
+def _config_logging() -> None:
     logging.basicConfig(format=_loggingFormat)
 
 
-def _main():
+def _main() -> None:
     _config_logging()
     rootLogger = logging.getLogger()
     try:

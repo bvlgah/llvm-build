@@ -1,0 +1,31 @@
+name: LLVM Release Build for Instruction Scheduling
+description: Configuration to create release builds LLVM Toolchain for instruction scheduling
+srcDir: /opt/code/compilers/llvm-project/llvm
+buildDir: /opt/build/out/llvm/inst-sched/release-build
+installDir: /opt/build/out/llvm/inst-sched/release-install
+packagePathPrefix: /opt/build/out/llvm/inst-sched/clang-release
+buildTool:
+  name: cmake
+  customConfigureOptions:
+    CMAKE_BUILD_TYPE: 'Release'
+    CMAKE_EXPORT_COMPILE_COMMANDS: 'ON'
+    LLVM_ENABLE_PROJECTS: 'clang'
+    LLVM_TARGETS_TO_BUILD: 'AArch64;AMDGPU;NVPTX;RISCV;X86'
+    LLVM_ENABLE_LLD: 'ON'
+    LLVM_CCACHE_BUILD: 'ON'
+    BUILD_SHARED_LIBS: 'ON'
+    LLVM_BUILD_EXAMPLES: 'OFF'
+    LLVM_BUILD_BENCHMARKS: 'OFF'
+    LLVM_BUILD_TESTS: 'ON'
+    LLVM_ENABLE_RTTI: 'ON'
+    LLVM_ENABLE_EH: 'ON'
+    LLVM_ENABLE_ASSERTIONS: 'ON' # Enable debug level logging
+    LLVM_ENABLE_DUMP: 'ON' # Enable dumping
+toolchain:
+  name: llvm
+compilerOption:
+  cflags:
+    - '-g1' # Emit debug line number tables only
+  cxxflags:
+    - '-g1' # Emit debug line number tables only
+    - '-stdlib=libc++' # Use LLVM's libc++

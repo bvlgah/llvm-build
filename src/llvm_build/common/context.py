@@ -1,18 +1,18 @@
-import abc
+from abc import ABCMeta, abstractmethod
 from typing import Any
 
 from llvm_build.toolchain import PosixToolchain
 
 
-class AbstractBuildingContext(abc.ABC):
-    @abc.abstractmethod
-    def addArgumentParsing(self, *arg, **kwargs) -> None: ...
+class AbstractBuildingContext(metaclass=ABCMeta):
+    @abstractmethod
+    def add_argument_parsing(self, *arg: str, **kwargs: str) -> None: ...
 
-    @abc.abstractmethod
-    def getArgumentValue(self, key: str) -> Any: ...
+    @abstractmethod
+    def get_argument_value(self, key: str) -> Any: ...
 
-    @abc.abstractmethod
-    def registerToolchainFactory(
+    @abstractmethod
+    def register_toolchain_factory(
         self,
         name: str,
         toolchain: PosixToolchain,

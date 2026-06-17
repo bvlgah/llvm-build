@@ -13,7 +13,7 @@ class CMakeDefineProviderAggregate(AbstractCMakeDefineProvider):
         self._providers.append(provider)
 
     @staticmethod
-    def _concatDefine(key: str, oldValue: str, newValue) -> str:
+    def _concatDefine(key: str, oldValue: str, newValue: str) -> str:
         connector: str
         if key in (
             "CMAKE_C_FLAGS",
@@ -41,7 +41,10 @@ class CMakeDefineProviderAggregate(AbstractCMakeDefineProvider):
 class CMakeBuildTypeProvider(AbstractCMakeDefineProvider):
     _buildType: CMakeBuildType
 
-    def __init__(self, buildType=CMakeBuildType.RELEASE) -> None:
+    def __init__(
+        self,
+        buildType: CMakeBuildType = CMakeBuildType.RELEASE,
+    ) -> None:
         super().__init__()
         self._buildType = buildType
 

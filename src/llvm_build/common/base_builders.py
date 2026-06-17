@@ -3,6 +3,7 @@ import datetime
 import os
 import shutil
 import subprocess
+from collections.abc import Generator
 from contextlib import contextmanager
 from enum import StrEnum
 from pathlib import Path
@@ -29,7 +30,7 @@ class TimedBuilder(AbstractBuilder):
     _builder: AbstractBuilder
 
     @contextmanager
-    def _timingContext(self, processName: str):
+    def _timingContext(self, processName: str) -> Generator[None]:
         startTimestamp = datetime.datetime.now()
         try:
             yield

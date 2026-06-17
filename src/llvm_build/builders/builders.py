@@ -3,7 +3,7 @@ import shutil
 import subprocess
 import sys
 from argparse import ArgumentParser
-from collections.abc import Mapping, Sequence
+from collections.abc import Generator, Mapping, Sequence
 from enum import StrEnum
 from pathlib import Path
 
@@ -181,7 +181,7 @@ class LLVMCMakeBuilder(LoggerMixin):
     def __init__(self, opts: LLVMBuildOptions):
         self._opts = opts
 
-    def build(self):
+    def build(self) -> None:
         cmakePath = _check_build_tool("cmake")
         ninjaPath = _check_build_tool("ninja")
         self._config_with_cmake(cmakePath)
@@ -190,7 +190,7 @@ class LLVMCMakeBuilder(LoggerMixin):
     def _to_cmake_build_type(self) -> str:
         return self._build_type_mapping[self._opts.buildType].value
 
-    def _create_build_dir(self, buildDir: Path):
+    def _create_build_dir(self, buildDir: Path) -> None:
         if buildDir.exists():
             if buildDir.is_dir():
                 self.logger.warning(f"build directory '{buildDir}' exists")
@@ -201,7 +201,7 @@ class LLVMCMakeBuilder(LoggerMixin):
                 )
         buildDir.mkdir(parents=True)
 
-    def _check_src_dir(self, srcDir: Path):
+    def _check_src_dir(self, srcDir: Path) -> None:
         if not srcDir.exists():
             raise RuntimeError(f"source directory '{srcDir}' does not exist")
         if not srcDir.is_dir():
@@ -210,7 +210,7 @@ class LLVMCMakeBuilder(LoggerMixin):
                 "but it is not a directory"
             )
 
-    def _config_with_cmake(self, cmakePath: Path):
+    def _config_with_cmake(self, cmakePath: Path) -> None:
         buildDir = self._opts.buildDir.absolute() / self._opts.buildType.value
         srcDir = self._opts.srcDir.absolute()
         self._check_src_dir(srcDir)
@@ -270,17 +270,23 @@ class LLVMCMakeBuilder(LoggerMixin):
             cmakePath, args, buildDir / "llvm_config.log"
         )
 
-    def _keep_regular_file_if_existent(self, filePath: Path, compressed=False):
+    def _keep_regular_file_if_existent(
+        self,
+        filePath: Path,
+        compressed: bool = False,
+    ) -> None:
         if not filePath.exists():
             return
         if not filePath.is_file():
             raise RuntimeError(f"{filePath}: not a regular file")
         self._rename_file_with_timestamp(filePath, compressed)
 
-    def _rename_file_with_timestamp(self, filePath: Path, compressed: bool):
+    def _rename_file_with_timestamp(
+        self, filePath: Path, compressed: bool
+    ) -> None:
         unixTimestampStr = str(int(filePath.stat().st_ctime))
 
-        def generate_file_name():
+        def generate_file_name() -> Generator[Path]:
             newSuffix = ".gz" if compressed else ""
             newFileName = (
                 filePath.stem
@@ -318,7 +324,7 @@ class LLVMCMakeBuilder(LoggerMixin):
 
     def _write_command_to_file(
         self, binFile: Path, args: list[str], shFile: Path
-    ):
+    ) -> None:
         indent = 4
         self._keep_regular_file_if_existent(shFile)
         with shFile.open("w") as f:
@@ -330,7 +336,7 @@ class LLVMCMakeBuilder(LoggerMixin):
                 f.write(" " * indent)
                 f.write(args[-1])
 
-    def _build_with_ninja(self, ninjaPath: Path):
+    def _build_with_ninja(self, ninjaPath: Path) -> None:
         buildDir = self._opts.buildDir.absolute() / self._opts.buildType.value
         args = ["-C", str(buildDir)]
         self._write_command_to_file(ninjaPath, args, buildDir / "llvm_build.sh")
@@ -340,7 +346,7 @@ class LLVMCMakeBuilder(LoggerMixin):
 
     def _launch_binary_and_log(
         self, binFile: Path, args: list[str], logFile: Path
-    ):
+    ) -> None:
         self._keep_regular_file_if_existent(logFile, True)
         with logFile.open("w") as outErrorFile:
             proc = subprocess.run(
