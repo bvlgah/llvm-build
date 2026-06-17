@@ -111,7 +111,9 @@ def _assembleCompilerOption(
     return option
 
 
-def _preloadCMakeOptions(builder: CMakeBuilder, config: _BuildToolConfig):
+def _preloadCMakeOptions(
+    builder: CMakeBuilder, config: _BuildToolConfig
+) -> None:
     if "initialCache" in config.customConfigureOptions:
         cachePath = _doResolvePath(
             Path(config.customConfigureOptions["initialCache"])
@@ -263,7 +265,7 @@ def _parseArgs(args: Sequence[str]) -> Namespace:
     return parser.parse_args(args)
 
 
-def _config_logging():
+def _config_logging() -> None:
     loggingFormat = (
         "[%(asctime)s %(levelname)s "
         "%(module)s.%(name)s.%(funcName)s] %(message)s"

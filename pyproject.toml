@@ -1,9 +1,6 @@
 [build-system]
+requires = ["uv_build>=0.11.21,<0.12"]
 build-backend = "uv_build"
-requires = [
-    "uv_build>=0.9.18,<0.10.0",
-    "uv-dynamic-versioning>=0.12.0",
-]
 
 [project]
 name = "llvm-build"
@@ -37,6 +34,7 @@ license-files = [
     "LICENSE",
 ]
 dependencies = [
+    "frozendict>=2.4.7",
     "pydantic>=2.6.4,<3.0.0",
     "pydantic_settings>=2.6.4,<3.0.0",
     "PyYAML>=6.0.1",
@@ -45,9 +43,13 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pre-commit>=4.5.1",
-    "pyright>=1.1.407",
-    "ruff>=0.14.10",
+    "pre-commit>=4.6.0",
+    "pylsp-mypy>=0.7.3",
+    "pyright>=1.1.410",
+    "python-lsp-ruff>=2.3.1",
+    "python-lsp-server>=1.14.0",
+    "ruff>=0.15.17",
+    "mypy>=2.1.0",
 ]
 test = [
     { include-group = "dev" },

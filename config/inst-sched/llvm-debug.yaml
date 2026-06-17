@@ -1,13 +1,13 @@
-name: LLVM
-description: LLVM Toolchain
+name: LLVM Debug Build for Instruction Scheduling
+description: Configuration to create debug builds LLVM Toolchain for instruction scheduling
 srcDir: /opt/code/compilers/llvm-project/llvm
-buildDir: /opt/build/out/llvm/amd64-build
-installDir: /opt/build/out/llvm/amd64-install
-packagePathPrefix: /opt/build/out/llvm/amd64-package/clang-amd64
+buildDir: /opt/build/out/llvm/inst-sched/debug-build
+installDir: /opt/build/out/llvm/inst-sched/debug-install
+packagePathPrefix: /opt/build/out/llvm/inst-sched/clang-debug
 buildTool:
   name: cmake
   customConfigureOptions:
-    CMAKE_BUILD_TYPE: 'Release'
+    CMAKE_BUILD_TYPE: 'Debug'
     CMAKE_EXPORT_COMPILE_COMMANDS: 'ON'
     LLVM_ENABLE_PROJECTS: 'clang'
     LLVM_TARGETS_TO_BUILD: 'AArch64;AMDGPU;NVPTX;RISCV;X86'
@@ -16,7 +16,7 @@ buildTool:
     BUILD_SHARED_LIBS: 'ON'
     LLVM_BUILD_EXAMPLES: 'OFF'
     LLVM_BUILD_BENCHMARKS: 'OFF'
-    LLVM_BUILD_TESTS: 'OFF'
+    LLVM_BUILD_TESTS: 'ON'
     LLVM_ENABLE_RTTI: 'ON'
     LLVM_ENABLE_EH: 'ON'
     LLVM_ENABLE_ASSERTIONS: 'ON' # Enable debug level logging
@@ -24,8 +24,5 @@ buildTool:
 toolchain:
   name: llvm
 compilerOption:
-  cflags:
-    - '-g1' # Emit debug line number tables only
   cxxflags:
-    - '-g1' # Emit debug line number tables only
     - '-stdlib=libc++' # Use LLVM's libc++

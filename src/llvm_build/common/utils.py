@@ -59,7 +59,11 @@ class FileSystemHelper(LoggerMixin):
         return f"'{option}'"
 
     @classmethod
-    def convertCommandToStr(cls, *args: str, indentLevel=4) -> str:
+    def convertCommandToStr(
+        cls,
+        *args: str,
+        indentLevel: int = 4,
+    ) -> str:
         if len(args) == 0:
             return ""
         if len(args) == 1:
