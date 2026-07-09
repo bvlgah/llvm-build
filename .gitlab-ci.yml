@@ -73,6 +73,9 @@ run-unit-test:
 
 build-and-test-llvm:
   extends: .build-and-test-llvm-base
-  image: ubuntu:26.04
+  parallel:
+    matrix:
+      - IMAGE_VERSION: ["24.04", "26.04"]
+  image: ubuntu:${IMAGE_VERSION}
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
