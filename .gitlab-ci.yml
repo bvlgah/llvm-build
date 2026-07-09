@@ -4,8 +4,7 @@ default:
     - python3 -m venv ${PYTHON_VENV_DIR}
     - . ${PYTHON_VENV_DIR}/bin/activate
     - pip install -q uv
-    - uv pip install -r pyproject.toml
-    - uv pip install -q --group all
+    - uv pip install -q --group all -r pyproject.toml
   tags:
     - docker
 
@@ -50,7 +49,7 @@ run-unit-test:
     # Fetch LLVM code
     - |
       if [ ! -d ${LLVM_SOURCE_DIR} ]; then
-        git clone --branch ${LLVM_REPO_BRANCH} ${LLVM_REPO_URL} ${LLVM_SOURCE_DIR}
+        git clone --depth 1 --branch ${LLVM_REPO_BRANCH} ${LLVM_REPO_URL} ${LLVM_SOURCE_DIR}
       else
         cd ${LLVM_SOURCE_DIR}
         git checkout ${LLVM_REPO_BRANCH}
@@ -61,12 +60,16 @@ run-unit-test:
     - uv pip install .
     # `psutil` is required by `llvm-lit` to set timeouts.
     - uv pip install psutil
+    - ccache --zero-stats
     - >
-      llvm-build --config config/inst-sched/llvm-release.yaml \
+      llvm-build \
+        --no-install \
+        --config config/inst-sched/llvm-release.yaml \
         --src-dir ${LLVM_SOURCE_DIR}/llvm \
         --build-dir ${LLVM_BUILD_DIR}
     # Run unit test cases `UnitTests` and lit test cases `check`.
     - ninja -C ${LLVM_BUILD_DIR} UnitTests check
+    - ccache --show-stats
 
 build-and-test-llvm:
   extends: .build-and-test-llvm-base
