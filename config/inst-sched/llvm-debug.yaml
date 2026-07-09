@@ -1,28 +1,32 @@
 name: LLVM Debug Build for Instruction Scheduling
 description: Configuration to create debug builds LLVM Toolchain for instruction scheduling
 srcDir: /opt/code/compilers/llvm-project/llvm
-buildDir: /opt/build/out/llvm/inst-sched/debug-build
-installDir: /opt/build/out/llvm/inst-sched/debug-install
-packagePathPrefix: /opt/build/out/llvm/inst-sched/clang-debug
+buildDir: /opt/build/llvm/inst-sched/debug-build
+installDir: /opt/build/llvm/inst-sched/debug-install
+packagePathPrefix: /opt/build/llvm/inst-sched/clang-debug
 buildTool:
   name: cmake
   customConfigureOptions:
-    CMAKE_BUILD_TYPE: 'Debug'
-    CMAKE_EXPORT_COMPILE_COMMANDS: 'ON'
-    LLVM_ENABLE_PROJECTS: 'clang'
-    LLVM_TARGETS_TO_BUILD: 'AArch64;AMDGPU;NVPTX;RISCV;X86'
-    LLVM_ENABLE_LLD: 'ON'
-    LLVM_CCACHE_BUILD: 'ON'
-    BUILD_SHARED_LIBS: 'ON'
-    LLVM_BUILD_EXAMPLES: 'OFF'
-    LLVM_BUILD_BENCHMARKS: 'OFF'
-    LLVM_BUILD_TESTS: 'ON'
-    LLVM_ENABLE_RTTI: 'ON'
-    LLVM_ENABLE_EH: 'ON'
-    LLVM_ENABLE_ASSERTIONS: 'ON' # Enable debug level logging
-    LLVM_ENABLE_DUMP: 'ON' # Enable dumping
+    CMAKE_BUILD_TYPE: "Debug"
+    CMAKE_EXPORT_COMPILE_COMMANDS: "ON"
+    LLVM_ENABLE_PROJECTS: "clang"
+    LLVM_TARGETS_TO_BUILD: "AArch64;AMDGPU;NVPTX;RISCV;X86"
+    LLVM_CCACHE_BUILD: "ON"
+    # BUILD_SHARED_LIBS: "ON"
+    LLVM_BUILD_EXAMPLES: "OFF"
+    LLVM_BUILD_BENCHMARKS: "OFF"
+    LLVM_BUILD_TESTS: "ON"
+    # LLVM_ENABLE_RTTI: "ON"
+    # LLVM_ENABLE_EH: "ON"
+    LLVM_ENABLE_ASSERTIONS: "ON" # Enable debug level logging
+    LLVM_ENABLE_DUMP: "ON" # Enable dumping
+    # To enable benchmarking functionalities of `llvm-exegesis`.
+    LLVM_ENABLE_LIBPFM: "ON"
 toolchain:
   name: llvm
 compilerOption:
   cxxflags:
-    - '-stdlib=libc++' # Use LLVM's libc++
+    - "-stdlib=libc++" # Use LLVM"s libc++
+  ldflags:
+    - "-fuse-ld=wild"
+    - "-rtlib=compiler-rt" # Use LLVM"s compiler-rt
