@@ -1,10 +1,9 @@
 ubuntu_install_package() {
-  user_id=$(id -u)
+  local user_id=$(id -u)
+  local sudo_command="sudo"
 
-  if [[ ${user_id} == '0' ]]; then
-    sudo_command=''
-  else
-    sudo_command='sudo'
+  if [[ ${user_id} == "0" ]]; then
+    sudo_command=""
   fi
 
   ${sudo_command} apt-get update

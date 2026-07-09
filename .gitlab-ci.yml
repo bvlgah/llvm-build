@@ -1,13 +1,28 @@
 default:
   image: python:3.12
   before_script:
+    - python3 -m venv ${PYTHON_VENV_DIR}
+    - . ${PYTHON_VENV_DIR}/bin/activate
     - pip install -q uv
-    - uv venv .env
-    - . .env/bin/activate
     - uv pip install -r pyproject.toml
     - uv pip install -q --group all
   tags:
     - docker
+
+variables:
+  # Cache directory for ccache.
+  CCACHE_DIR: /opt/cache/ccache
+  # URL, branch, and persistent local directory for llvm repo.
+  LLVM_REPO_URL: https://gitlab.com/compiler2462701/llvm.git
+  LLVM_REPO_BRANCH: inst-sched
+  LLVM_SOURCE_DIR: ${CI_BUILDS_DIR}/${CI_PROJECT_NAMESPACE_SLUG}/llvm-project
+  LLVM_BUILD_DIR: /opt/build/llvm
+  # Python-related variables
+  PYTHON_VENV_DIR: /opt/venv/llvm-build
+
+stages:
+  - build
+  - test
 
 code-checking:
   stage: build
@@ -20,3 +35,41 @@ run-unit-test:
   script:
     - uv pip install .
     - pytest tests/unittest
+
+# Jobs started with period (.) are hidden. See https://docs.gitlab.com/ci/jobs/#hide-a-job.
+# The following CI job is supposed to be a template for CI jobs that build and
+# test LLVM but not run directly. So it should be hidden and start with a
+# period.
+.build-and-test-llvm-base:
+  stage: test
+  before_script:
+    # Install building depedencies.
+    - ./scripts/ubuntu/install_build.sh
+    - !reference [default, before_script]
+  script:
+    # Fetch LLVM code
+    - |
+      if [ ! -d ${LLVM_SOURCE_DIR} ]; then
+        git clone --branch ${LLVM_REPO_BRANCH} ${LLVM_REPO_URL} ${LLVM_SOURCE_DIR}
+      else
+        cd ${LLVM_SOURCE_DIR}
+        git checkout ${LLVM_REPO_BRANCH}
+        git pull origin ${LLVM_REPO_BRANCH}
+      fi
+    # Go back to the project root directory.
+    - cd ${CI_PROJECT_DIR}
+    - uv pip install .
+    # `psutil` is required by `llvm-lit` to set timeouts.
+    - uv pip install psutil
+    - >
+      llvm-build --config config/inst-sched/llvm-release.yaml \
+        --src-dir ${LLVM_SOURCE_DIR}/llvm \
+        --build-dir ${LLVM_BUILD_DIR}
+    # Run unit test cases `UnitTests` and lit test cases `check`.
+    - ninja -C ${LLVM_BUILD_DIR} UnitTests check
+
+build-and-test-llvm:
+  extends: .build-and-test-llvm-base
+  image: ubuntu:26.04
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
