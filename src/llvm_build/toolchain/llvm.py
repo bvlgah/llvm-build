@@ -11,7 +11,7 @@ class LlvmToolchain(PosixToolchainBase):
         root_dir: Path,
         bin_dir_name: str | None = "bin",
         target_prefix: str | None = None,
-        version_suffix: str | None = None,
+        version_suffix: str | None = None,  # noqa: ARG002
     ) -> None:
         super().__init__(
             kind=ToolchainKind.LLVM,
@@ -22,7 +22,7 @@ class LlvmToolchain(PosixToolchainBase):
             ld_name="ld.lld",
             strip_name="llvm-strip",
             target_prefix=target_prefix,
-            version_suffix=version_suffix,
+            version_suffix=None,
         )
 
     @staticmethod

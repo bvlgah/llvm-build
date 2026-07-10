@@ -5,8 +5,6 @@ default:
     - . ${PYTHON_VENV_DIR}/bin/activate
     - pip install -q uv
     - uv pip install -q --group all -r pyproject.toml
-  tags:
-    - docker
 
 variables:
   # Cache directory for ccache.
@@ -35,12 +33,19 @@ run-unit-test:
     - uv pip install .
     - pytest tests/unittest
 
-# Jobs started with period (.) are hidden. See https://docs.gitlab.com/ci/jobs/#hide-a-job.
-# The following CI job is supposed to be a template for CI jobs that build and
-# test LLVM but not run directly. So it should be hidden and start with a
-# period.
-.build-and-test-llvm-base:
+build-and-test-llvm:
   stage: test
+  tags:
+    - "linux"
+    - "docker"
+  parallel:
+    matrix:
+      - IMAGE_VERSION: ["24.04", "26.04"]
+  image: ubuntu:${IMAGE_VERSION}
+  rules:
+    # Enable building and testing of LLVM only if a MR against the default
+    # branch is triggered, or a commit is pushed to the default branch.
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
   before_script:
     # Install building depedencies.
     - ./scripts/ubuntu/install_build.sh
@@ -70,12 +75,3 @@ run-unit-test:
     # Run unit test cases `UnitTests` and lit test cases `check`.
     - ninja -C ${LLVM_BUILD_DIR} UnitTests check
     - ccache --show-stats
-
-build-and-test-llvm:
-  extends: .build-and-test-llvm-base
-  parallel:
-    matrix:
-      - IMAGE_VERSION: ["24.04", "26.04"]
-  image: ubuntu:${IMAGE_VERSION}
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

@@ -17,13 +17,21 @@ class GnuToolchain(PosixToolchainBase):
             kind=ToolchainKind.GNU,
             root_dir=root_dir,
             bin_dir_name=bin_dir_name,
-            cc_name="gcc",
-            cxx_name="g++",
+            cc_name=self._append_version(
+                bin_name="gcc", version_suffix=version_suffix
+            ),
+            cxx_name=self._append_version(
+                bin_name="g++", version_suffix=version_suffix
+            ),
             ld_name="ld",
             strip_name="strip",
             target_prefix=target_prefix,
-            version_suffix=version_suffix,
+            version_suffix=None,
         )
+
+    @staticmethod
+    def _append_version(bin_name: str, version_suffix: str | None) -> str:
+        return f"{bin_name}-{version_suffix}" if version_suffix else bin_name
 
     @staticmethod
     def from_exe(exe_path: Path | str) -> "GnuToolchain":

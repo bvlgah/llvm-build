@@ -1,4 +1,11 @@
 ubuntu_install_package() {
+  local sudo_command=$(get_sudo_command)
+
+  ${sudo_command} apt-get update
+  ${sudo_command} apt-get install -y $@
+}
+
+get_sudo_command() {
   local user_id=$(id -u)
   local sudo_command="sudo"
 
@@ -6,6 +13,5 @@ ubuntu_install_package() {
     sudo_command=""
   fi
 
-  ${sudo_command} apt-get update
-  ${sudo_command} apt-get install -y $@
+  echo ${sudo_command}
 }
