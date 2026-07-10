@@ -13,6 +13,10 @@ buildTool:
     LLVM_TARGETS_TO_BUILD: "AArch64;AMDGPU;NVPTX;RISCV;X86"
     LLVM_CCACHE_BUILD: "ON"
     # BUILD_SHARED_LIBS: "ON"
+    # Build `libLLVM` and make tools linked with this shared library. See
+    # https://llvm.org/docs/CMake.html#llvm-related-variables.
+    LLVM_BUILD_LLVM_DYLIB: "ON"
+    LLVM_LINK_LLVM_DYLIB: "ON"
     LLVM_BUILD_EXAMPLES: "OFF"
     LLVM_BUILD_BENCHMARKS: "OFF"
     LLVM_BUILD_TESTS: "ON"
@@ -24,6 +28,7 @@ buildTool:
     LLVM_ENABLE_LIBPFM: "ON"
 toolchain:
   name: llvm
+  versionSuffix: "21"
 compilerOption:
   cxxflags:
     - "-stdlib=libc++" # Use LLVM"s libc++

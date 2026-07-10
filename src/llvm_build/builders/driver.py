@@ -70,7 +70,8 @@ class _ToolchainConfig(BaseModel):
 
     name: ToolchainKind
     installDir: _NullableProjectRootBasedPath = None
-    targetPrefix: str = ""
+    targetPrefix: str | None = None
+    versionSuffix: str | None = None
 
 
 class _BuildToolConfig(BaseModel):
@@ -153,40 +154,55 @@ def _assembleCMakeBuilder(
     return builder
 
 
-def _findCompilerInstallDir(compiler: str) -> Path:
-    gcc = shutil.which(compiler)
-    if gcc is None:
-        raise RuntimeError(f"{compiler} not found")
-    gccPath = Path(gcc).resolve()
-    assert (gccPath / "..").resolve().name == "bin", (
-        f"expect {compiler} located in bin directory"
+def _find_toolchain_install_dir(config: _ProjectConfig) -> Path:
+    compiler_base_name: str
+    match config.toolchain.name:
+        case ToolchainKind.GNU:
+            compiler_base_name = "gcc"
+        case ToolchainKind.LLVM:
+            compiler_base_name = "clang"
+        case _:
+            raise RuntimeError(f"unknown toolchain: {config.toolchain.name}")
+
+    # Prepend target prefix (e.g., `aarch64-linux-gnu`) and append version
+    # suffix (such as `21`) if specified.
+    compiler_name = compiler_base_name
+    if config.toolchain.targetPrefix:
+        compiler_name = config.toolchain.targetPrefix + "-" + compiler_name
+    if config.toolchain.versionSuffix:
+        compiler_name = compiler_name + "-" + config.toolchain.versionSuffix
+
+    compiler_path_str = shutil.which(compiler_name)
+    if compiler_path_str is None:
+        raise RuntimeError(f"{compiler_name} not found")
+    compiler_path = Path(compiler_path_str).resolve()
+    assert (compiler_path / "..").resolve().name == "bin", (
+        f"expect {compiler_name} located in bin directory"
     )
-    return (gccPath / ".." / "..").resolve()
+    return (compiler_path / ".." / "..").resolve()
 
 
-def _assembleToolchain(projectConfig: _ProjectConfig) -> PosixToolchain:
-    if projectConfig.toolchain.name == ToolchainKind.GNU:
-        if projectConfig.toolchain.installDir is None:
-            gccName = (
-                projectConfig.toolchain.targetPrefix + "-gcc"
-                if projectConfig.toolchain.targetPrefix
-                else "gcc"
-            )
+def _assembleToolchain(config: _ProjectConfig) -> PosixToolchain:
+    install_dir = (
+        _find_toolchain_install_dir(config)
+        if config.toolchain.installDir is None
+        else config.toolchain.installDir
+    )
+    match config.toolchain.name:
+        case ToolchainKind.GNU:
             return GnuToolchain(
-                root_dir=_findCompilerInstallDir(gccName),
-                target_prefix=projectConfig.toolchain.targetPrefix,
+                root_dir=install_dir,
+                target_prefix=config.toolchain.targetPrefix,
+                version_suffix=config.toolchain.versionSuffix,
             )
-        else:
-            return GnuToolchain(
-                root_dir=projectConfig.toolchain.installDir,
-                target_prefix=projectConfig.toolchain.targetPrefix,
+        case ToolchainKind.LLVM:
+            return LlvmToolchain(
+                root_dir=install_dir,
+                target_prefix=config.toolchain.targetPrefix,
+                version_suffix=config.toolchain.versionSuffix,
             )
-    if projectConfig.toolchain.name == ToolchainKind.LLVM:
-        if projectConfig.toolchain.installDir is None:
-            return LlvmToolchain(_findCompilerInstallDir("clang"))
-        else:
-            return LlvmToolchain(projectConfig.toolchain.installDir)
-    raise RuntimeError("unknown toolchain: f{projectConfig.toolchain.name}")
+        case _:
+            raise RuntimeError(f"unknown toolchain: {config.toolchain.name}")
 
 
 def _assembleBuilder(projectConfig: _ProjectConfig) -> AbstractBuilder:

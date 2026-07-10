@@ -13,22 +13,27 @@ buildTool:
     LLVM_TARGETS_TO_BUILD: "AArch64;AMDGPU;NVPTX;RISCV;X86"
     LLVM_CCACHE_BUILD: "ON"
     # BUILD_SHARED_LIBS: "ON"
+    # Build `libLLVM` and make tools linked with this shared library. See
+    # https://llvm.org/docs/CMake.html#llvm-related-variables.
+    LLVM_BUILD_LLVM_DYLIB: "ON"
+    LLVM_LINK_LLVM_DYLIB: "ON"
     LLVM_BUILD_EXAMPLES: "OFF"
     LLVM_BUILD_BENCHMARKS: "OFF"
     LLVM_BUILD_TESTS: "ON"
     # LLVM_ENABLE_RTTI: "ON"
     # LLVM_ENABLE_EH: "ON"
-    # LLVM_ENABLE_ASSERTIONS: "ON" # Enable debug level logging
-    # LLVM_ENABLE_DUMP: "ON" # Enable dumping
+    LLVM_ENABLE_ASSERTIONS: "ON" # Enable debug level logging
+    LLVM_ENABLE_DUMP: "ON" # Enable dumping
     # To enable benchmarking functionalities of `llvm-exegesis`.
     LLVM_ENABLE_LIBPFM: "ON"
 toolchain:
   name: llvm
+  versionSuffix: "21"
 compilerOption:
-  # cflags:
-    # - "-g1" # Emit debug line number tables only
+  cflags:
+    - "-g1" # Emit debug line number tables only
   cxxflags:
-    # - "-g1" # Emit debug line number tables only
+    - "-g1" # Emit debug line number tables only
     - "-stdlib=libc++" # Use LLVM"s libc++
   ldflags:
     - "--rtlib=compiler-rt" # Use LLVM"s compiler-rt
